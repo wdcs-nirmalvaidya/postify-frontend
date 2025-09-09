@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 
 import { Search } from "lucide-react";
-import { getFollowSuggestions, searchUsers } from "@/utils/userApi";
+import { getFollowSuggestions, searchUsers } from "@/utils/Apis/userApi";
 import { PublicUser } from "@/types/user.type";
-import { UserItem } from "./UserItem";
+import { UserItem } from "../user/UserItem";
 
 export const RightSidebar = () => {
   const [suggestions, setSuggestions] = useState<PublicUser[]>([]);

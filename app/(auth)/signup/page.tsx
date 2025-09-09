@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { registerUser } from "@/utils/authApi";
+import { registerUser } from "@/utils/Apis/authApi";
 import { SignupForm } from "@/types/auth.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupFormSchema } from "@/validations/signup.form";

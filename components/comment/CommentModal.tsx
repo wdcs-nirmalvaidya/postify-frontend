@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send } from "lucide-react";
 import toast from "react-hot-toast";
 import { Comment } from "@/types/comment.type";
-import { getComments, createComment } from "../utils/commentApi";
+import { getComments, createComment } from "@/utils/Apis/commentApi";
 import { CommentItem } from "./CommentItem";
 
 interface CommentModalProps {

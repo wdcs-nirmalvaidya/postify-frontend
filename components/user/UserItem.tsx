@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { followUser, unfollowUser } from "@/utils/userApi";
+import { followUser, unfollowUser } from "@/utils/Apis/userApi";
 
 export const UserItem = ({
   user,

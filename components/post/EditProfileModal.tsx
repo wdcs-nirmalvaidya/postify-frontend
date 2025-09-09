@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { updateUserProfile } from "@/utils/userApi";
+import { updateUserProfile } from "@/utils/Apis/userApi";
 import { UserProfile } from "@/types/user.type";
 import { useEffect } from "react";
 

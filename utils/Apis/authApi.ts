@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SignupForm, LoginForm } from "../types/auth.types";
+import { SignupForm, LoginForm } from "../../types/auth.types";
 
 const apiClient = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`,

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { PublicUser } from "@/types/user.type";
-import { getRandomUsers, searchUsers } from "@/utils/userApi";
-import { AuthGuard } from "@/components/AuthGurd";
-import { UserItem } from "@/components/UserItem";
+import { getRandomUsers, searchUsers } from "@/utils/Apis/userApi";
+import { AuthGuard } from "@/components/user/AuthGurd";
+import { UserItem } from "@/components/user/UserItem";
 import { Search } from "lucide-react";
 
 const containerVariants = {

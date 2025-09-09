@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { AuthGuard } from "@/components/AuthGurd";
+import { AuthGuard } from "@/components/user/AuthGurd";
 import { PublicUser } from "@/types/user.type";
-import { updateUserPrivacy } from "@/utils/userApi";
+import { updateUserPrivacy } from "@/utils/Apis/userApi";
 
 export default function SettingsPage() {
   const [currentUser, setCurrentUser] = useState<PublicUser | null>(null);

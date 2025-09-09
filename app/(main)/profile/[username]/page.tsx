@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { PostCard } from "@/components/Postcard";
+import { PostCard } from "@/components/post/Postcard";
 import { Post } from "@/types/post.types";
 import { UserProfile, PublicUser } from "@/types/user.type";
 import {
@@ -15,18 +15,18 @@ import {
   unfollowUser,
   getFollowers,
   getFollowing,
-} from "@/utils/userApi";
+} from "@/utils/Apis/userApi";
 import {
   deletePost,
   likePost,
   unlikePost,
   dislikePost,
   undislikePost,
-} from "@/utils/postApi";
-import { CreatePostModal } from "@/components/CreatePostModal";
-import { EditProfileModal } from "@/components/EditProfileModal";
-import { CommentModal } from "@/components/CommentModal";
-import { UserListModal } from "@/components/UserListModal";
+} from "@/utils/Apis/postApi";
+import { CreatePostModal } from "@/components/post/CreatePostModal";
+import { EditProfileModal } from "@/components/post/EditProfileModal";
+import { CommentModal } from "@/components/comment/CommentModal";
+import { UserListModal } from "@/components/user/UserListModal";
 
 const containerVariants = {
   hidden: { opacity: 0 },

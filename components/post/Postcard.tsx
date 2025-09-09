@@ -6,12 +6,12 @@ import { Heart, MessageCircle, MoreHorizontal, ThumbsDown } from "lucide-react";
 import { Post } from "@/types/post.types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UserListModal } from "@/components/UserListModal";
+import { UserListModal } from "@/components/user/UserListModal";
 import { PublicUser } from "@/types/user.type";
 import {
   getPostDislikes,
   getPostLikers as getPostLikersApi,
-} from "@/utils/postApi";
+} from "@/utils/Apis/postApi";
 
 interface PostCardProps {
   post: Post;

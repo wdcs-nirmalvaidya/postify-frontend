@@ -2,19 +2,19 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PostCard } from "@/components/Postcard";
-import { PostCardSkeleton } from "@/components/PostCardSkeleton";
-import { CreatePostModal } from "@/components/CreatePostModal";
-import { CommentModal } from "@/components/CommentModal";
+import { PostCard } from "@/components/post/Postcard";
+import { PostCardSkeleton } from "@/components/post/PostCardSkeleton";
+import { CreatePostModal } from "@/components/post/CreatePostModal";
+import { CommentModal } from "@/components/comment/CommentModal";
 import { isAuthenticated } from "@/utils/auth";
 import { usePosts } from "@/utils/hooks/usePost";
-import { RightSidebar } from "@/components/RightSidebar";
-import { WelcomeBanner } from "@/components/WelcomeBanner";
-import { CreatePostWidget } from "@/components/CreatePostWidget";
+import { RightSidebar } from "@/components/layout/RightSidebar";
+import { WelcomeBanner } from "@/components/layout/WelcomeBanner";
+import { CreatePostWidget } from "@/components/post/CreatePostWidget";
 import { Post } from "@/types/post.types";
 import { PublicUser } from "@/types/user.type";
-import Sidebar from "@/components/Sidebar";
-import { deletePost } from "@/utils/postApi";
+import Sidebar from "@/components/layout/Sidebar";
+import { deletePost } from "@/utils/Apis/postApi";
 import toast from "react-hot-toast";
 import { useInView } from "react-intersection-observer";
 

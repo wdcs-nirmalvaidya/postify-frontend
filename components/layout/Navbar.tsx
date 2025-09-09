@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Bell } from "lucide-react";
 import { PublicUser } from "@/types/user.type";
-import NotificationList from "./NotificationList";
+import NotificationList from "../NotificationList";
 import { useNotifications } from "@/utils/context/NotificationsContext";
 
 export default function Navbar() {
