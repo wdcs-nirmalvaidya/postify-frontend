@@ -10,6 +10,8 @@ export interface Message {
   sender?: PublicUser;
   createdAt: string;
   updatedAt: string;
+  tempId?: string;
+  status?: "sending" | "sent" | "failed";
 }
 
 export interface Conversation {

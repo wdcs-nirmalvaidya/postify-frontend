@@ -290,6 +290,7 @@ export default function ProfilePage() {
                 width={128}
                 height={128}
                 className="rounded-full mr-8 border-4 border-blue-500"
+                unoptimized
               />
               <div className="flex-1">
                 <div className="flex justify-between items-start">

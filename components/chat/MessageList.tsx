@@ -27,8 +27,12 @@ export const MessageList = ({ messages, isLoading }: MessageListProps) => {
   return (
     <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
       <div className="space-y-4">
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
+        {[...messages].reverse().map((msg) => (
+          <MessageBubble
+            key={msg.id || `${msg.senderId}-${msg.createdAt}-${Math.random()}`}
+            message={msg}
+            showAvatar={true}
+          />
         ))}
         <div ref={messagesEndRef} />
       </div>

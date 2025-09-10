@@ -171,6 +171,7 @@ export const PostCard = ({
             width={40}
             height={40}
             className="rounded-full mr-4"
+            unoptimized
           />
           <div
             className="flex flex-col cursor-pointer"
@@ -207,6 +208,8 @@ export const PostCard = ({
                 alt="Post media"
                 layout="fill"
                 objectFit="cover"
+                className="w-full h-full object-cover"
+                unoptimized
               />
             )}
           </div>

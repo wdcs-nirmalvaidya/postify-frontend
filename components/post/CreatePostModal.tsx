@@ -200,6 +200,7 @@ export const CreatePostModal = ({
                             width={200}
                             height={200}
                             className="mx-auto h-24 w-auto rounded-md object-cover"
+                            unoptimized
                           />
                         )}
                         {mediaType === "video" && mediaPreview && (

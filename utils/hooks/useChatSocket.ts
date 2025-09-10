@@ -1,79 +1,110 @@
-"use client";
+// moved to useChatSocket.ts directly
 
-import { useEffect, useRef } from "react";
-import { Socket, io } from "socket.io-client";
-import { Message, UnReadnotification } from "@/types/chat.types";
-import { useChat } from "../context/ChatContext";
+// "use client";
 
-const socketref: { current: Socket | null } = { current: null };
+// import { useEffect, useRef, useState } from "react";
+// import { io, Socket } from "socket.io-client";
+// import { Message, UnReadnotification } from "@/types/chat.types";
+// import { useChat } from "../context/ChatContext";
 
-export const useChatSocket = () => {
-  const { state, dispatch } = useChat();
+// let socket: Socket | null = null;
 
-  useEffect(() => {
-    if (!socketref.current) {
-      const token = localStorage.getItem("token");
+// export const useChatSocket = () => {
+//   const { state, dispatch } = useChat();
+//   const { activeConversationId } = state;
+//   const [isConnected, setIsConnected] = useState(false);
+//   const prevConversationRef = useRef<string | null>(null);
 
-      if (token) {
-        socketref.current = io(process.env.NEXT_PUBLIC_CHAT_SOCKET_URL || "", {
-          auth: { token },
-        });
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (!token) {
+//       console.warn("⚠️ No token found, socket won't connect.");
+//       return;
+//     }
 
-        socketref.current.on("connect", () => {
-          console.log(
-            "Connected To Chat Socket WebSocket:",
-            socketref.current?.id,
-          );
-        });
+//     if (!socket) {
+//       socket = io(process.env.NEXT_PUBLIC_CHAT_SOCKET_URL || "", {
+//         auth: { token },
+//         reconnection: true,
+//         reconnectionAttempts: 5,
+//       });
 
-        socketref.current.on("disconnect", (reason) => {
-          console.log("Disconnected from Chat Socket WebSocket:", reason);
-        });
+//       socket.on("connect", () => {
+//         console.log("✅ Connected:", socket?.id);
+//         setIsConnected(true);
+//       });
 
-        socketref.current.on("connect_error", (err) => {
-          console.error("Chat Socket connection error:", err.message);
-        });
+//       socket.on("disconnect", (reason) => {
+//         console.log("❌ Disconnected:", reason);
+//         setIsConnected(false);
+//       });
 
-        socketref.current.on("receive_message", (message: Message) => {
-          console.log("Received message:", message);
-          dispatch({ type: "ADD_MESSAGE", payload: message });
-        });
+//       socket.on("connect_error", (err) => {
+//         console.error("⚠️ Connection error:", err.message);
+//         setIsConnected(false);
+//       });
 
-        socketref.current.on(
-          "unread_notification",
-          (notif: UnReadnotification) => {
-            console.log("Received unread notification:", notif);
-            dispatch({
-              type: "UPDATE_CONVERSATION_NOTIFICATION",
-              payload: notif,
-            });
-          },
-        );
-        if (socketref.current && state.activeConversationId) {
-          socketref.current.emit(
-            "join_conversation",
-            state.activeConversationId,
-          );
-        }
+//       socket.on("receive_message", (message: Message) => {
+//         console.log("📩 Received:", message);
+//         if (message.tempId) {
+//           dispatch({
+//             type: "REPLACE_MESSAGE",
+//             payload: { tempId: message.tempId, finalMessage: message },
+//           });
+//         } else {
+//           dispatch({ type: "ADD_MESSAGE", payload: message });
+//         }
+//       });
 
-        return () => {
-          if (socketref.current) {
-            socketref.current.off("receive_message");
-            socketref.current.off("unread_message_notification");
-          }
-        };
-      }
-    }
-  }, [state.activeConversationId, dispatch]);
-  const sendMessage = (payload: {
-    conversationId: string;
-    senderId: string;
-    content: string;
-  }) => {
-    if (socketref.current) {
-      socketref.current.emit("send_message", payload);
-    }
-  };
+//       socket.on("unread_notification", (notif: UnReadnotification) => {
+//         console.log("🔔 Unread:", notif);
+//         dispatch({
+//           type: "UPDATE_CONVERSATION_NOTIFICATION",
+//           payload: notif,
+//         });
+//       });
+//     }
 
-  return { sendMessage };
-};
+//     return () => {
+//       if (socket) {
+//         console.log("🛑 Closing socket:", socket.id);
+//         socket.disconnect();
+//         socket = null;
+//       }
+//     };
+//   }, [dispatch]);
+
+//   useEffect(() => {
+//     if (isConnected && socket) {
+//       const prev = prevConversationRef.current;
+
+//       if (prev && prev !== activeConversationId) {
+//         socket.emit("leave_conversation", prev);
+//         console.log(`🚪 Left room: ${prev}`);
+//       }
+
+//       if (activeConversationId) {
+//         socket.emit("join_conversation", activeConversationId);
+//         console.log(`🚪 Joined room: ${activeConversationId}`);
+//       }
+
+//       prevConversationRef.current = activeConversationId;
+//     }
+//   }, [isConnected, activeConversationId]);
+
+//   const sendMessage = (payload: {
+//     conversationId: string;
+//     senderId: string;
+//     content: string;
+//     tempId: string;
+//   }) => {
+//     if (socket && isConnected) {
+//       dispatch({ type: "ADD_MESSAGE", payload });
+//       socket.emit("send_message", payload);
+//     } else {
+//       console.error("⚠️ Socket not connected, cannot send.");
+//     }
+//   };
+
+//   return { sendMessage, isConnected };
+// };

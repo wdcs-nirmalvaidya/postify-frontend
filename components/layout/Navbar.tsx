@@ -135,6 +135,7 @@ export default function Navbar() {
                     width={36}
                     height={36}
                     className="rounded-full ring-2 ring-offset-2 ring-blue-500"
+                    unoptimized
                   />
                 </button>
                 <AnimatePresence>

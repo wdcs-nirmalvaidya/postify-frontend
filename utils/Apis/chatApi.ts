@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Conversation } from "@/types/chat.types";
+import { Conversation, Message } from "@/types/chat.types";
 
 const chatApiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_CHAT_SOCKET_URL,
@@ -33,6 +33,41 @@ export const getConversations = async (): Promise<Conversation[]> => {
     }
     throw new Error(
       "An unexpected error occurred while fetching conversations.",
+    );
+  }
+};
+
+export const getMessages = async (
+  conversationId: string,
+): Promise<Message[]> => {
+  try {
+    const response = await chatApiClient.get(
+      `/chat/conversations/${conversationId}/messages`,
+    );
+    return response.data;
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(
+        err.response?.data?.message || "Failed to fetch messages.",
+      );
+    }
+    throw new Error("An unexpected error occurred while fetching messages.");
+  }
+};
+
+export const markConversationAsRead = async (
+  conversationId: string,
+): Promise<void> => {
+  try {
+    await chatApiClient.post(`/chat/conversations/${conversationId}/read`);
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(
+        err.response?.data?.message || "Failed to mark conversation as read.",
+      );
+    }
+    throw new Error(
+      "An unexpected error occurred while marking conversation as read.",
     );
   }
 };

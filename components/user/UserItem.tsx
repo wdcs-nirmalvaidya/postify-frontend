@@ -61,6 +61,7 @@ export const UserItem = ({
           width={40}
           height={40}
           className="rounded-full"
+          unoptimized
         />
         <div>
           <p className="font-bold text-sm text-gray-800 group-hover:underline">
