@@ -16,12 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
+      <body className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
         <ChatProvider>
           <NotificationsProvider>
             <Toaster position="top-center" reverseOrder={false} />
             <Navbar />
-            <main>{children}</main>
+            <main className="flex-1 flex flex-col">{children}</main>
           </NotificationsProvider>
         </ChatProvider>
       </body>

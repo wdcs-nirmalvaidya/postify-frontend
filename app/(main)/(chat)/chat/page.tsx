@@ -39,8 +39,7 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <div className="flex h-screen overflow-hidden bg-gray-100 dark:bg-gray-900">
-        {/* Sidebar for conversations */}
+      <div className="flex h-screen">
         <div
           className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -49,7 +48,6 @@ export default function ChatPage() {
           <ConversationList />
         </div>
 
-        {/* Main chat window */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="md:hidden p-2 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>

@@ -59,18 +59,13 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return { ...state, loadingMessages: action.payload };
 
     case "SET_MESSAGES":
-      console.log(
-        "[SET_MESSAGES]",
-        action.payload.conversationId,
-        action.payload.messages,
-      );
       return {
         ...state,
         messages: {
           ...state.messages,
           [action.payload.conversationId]: [...action.payload.messages].sort(
             (a, b) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
           ),
         },
         loadingMessages: false,
@@ -78,14 +73,14 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 
     case "ADD_MESSAGE": {
       const msg = action.payload;
-      console.log("[ADD_MESSAGE]", msg);
       const existing = state.messages[msg.conversationId] || [];
+
       if (existing.some((m) => m.id === msg.id || m.id === msg.tempId))
         return state;
 
-      const updatedMessages = [msg, ...existing].sort(
+      const updatedMessages = [...existing, msg].sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       );
 
       return {
@@ -145,13 +140,20 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     case "PREPEND_MESSAGES": {
       const { conversationId, messages } = action.payload;
       const current = state.messages[conversationId] || [];
+
       const ids = new Set(current.map((m) => m.id));
       const unique = messages.filter((m) => !ids.has(m.id));
+
+      const updated = [...unique, ...current].sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+
       return {
         ...state,
         messages: {
           ...state.messages,
-          [conversationId]: [...unique, ...current],
+          [conversationId]: updated,
         },
       };
     }
@@ -159,6 +161,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     case "REPLACE_MESSAGE": {
       const { tempId, finalMessage } = action.payload;
       const cid = finalMessage.conversationId;
+
       return {
         ...state,
         messages: {
@@ -211,20 +214,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         reconnectionAttempts: 5,
       });
 
-      socketref.current.on("connect", () => {
-        setIsConnected(true);
-      });
-
-      socketref.current.on("disconnect", () => {
-        setIsConnected(false);
-      });
-
-      socketref.current.on("connect_error", () => {
-        setIsConnected(false);
-      });
+      socketref.current.on("connect", () => setIsConnected(true));
+      socketref.current.on("disconnect", () => setIsConnected(false));
+      socketref.current.on("connect_error", () => setIsConnected(false));
 
       socketref.current.on("receive_message", (message: Message) => {
-        console.log("[Socket] receive_message", message);
         dispatch({ type: "ADD_MESSAGE", payload: message });
       });
 
@@ -250,6 +244,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isConnected && socketref.current) {
       const previousConversationId = previousConversationIdRef.current;
+
       if (
         previousConversationId &&
         previousConversationId !== state.activeConversationId

@@ -123,6 +123,9 @@ export default function Navbar() {
                   )}
                 </AnimatePresence>
               </div>
+              <div>
+                <p>Hello, {user.name}</p>
+              </div>
 
               <div className="relative">
                 <button onClick={() => setIsProfileMenuOpen((prev) => !prev)}>

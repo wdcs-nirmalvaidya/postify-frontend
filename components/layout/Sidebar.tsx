@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, Search } from "lucide-react";
+import { Home, Settings, Search, MessageCircle, User } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const Sidebar = () => {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const user =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("user") || "null")
+      : null;
 
   useEffect(() => {
     setMounted(true);
@@ -22,6 +27,12 @@ const Sidebar = () => {
   if (mounted && isAuthenticated) {
     navItems.push(
       { name: "Explore", href: "/Explore", icon: <Search size={20} /> },
+      { name: "Messages", href: "/chat", icon: <MessageCircle size={20} /> },
+      {
+        name: "Profile",
+        href: `/profile/${user?.username}`,
+        icon: <User size={20} />,
+      },
       { name: "Settings", href: "/settings", icon: <Settings size={20} /> },
     );
   }

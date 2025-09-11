@@ -19,7 +19,6 @@ export const ConversationItem = ({
   const { user } = useAuth();
 
   if (!user) {
-    // Render a placeholder or nothing while user is loading
     return null;
   }
 
@@ -42,7 +41,7 @@ export const ConversationItem = ({
           height={48}
           className="rounded-full mr-4 object-cover border-2 border-transparent group-hover:border-blue-500"
         />
-        {/* Add online/offline status indicator if available */}
+        {/* online/offline status indicator */}
         {/* <span className="absolute bottom-0 right-4 block h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span> */}
       </div>
       <div className="flex-1 overflow-hidden">

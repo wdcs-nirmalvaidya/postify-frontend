@@ -39,10 +39,12 @@ export const getConversations = async (): Promise<Conversation[]> => {
 
 export const getMessages = async (
   conversationId: string,
+  pageNum: number,
+  limit: number,
 ): Promise<Message[]> => {
   try {
     const response = await chatApiClient.get(
-      `/chat/conversations/${conversationId}/messages`,
+      `/chat/conversations/${conversationId}/messages?page=${pageNum}&limit=${limit}`,
     );
     return response.data;
   } catch (err: unknown) {
