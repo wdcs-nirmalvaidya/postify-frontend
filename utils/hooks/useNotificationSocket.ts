@@ -5,9 +5,9 @@ export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
+    const socketUrl = process.env.NEXT_PUBLIC_CHAT_SOCKET_URL;
     if (!socketUrl) {
-      console.error("NEXT_PUBLIC_SOCKET_URL is not defined in .env.local");
+      console.error("NEXT_PUBLIC_CHAT_SOCKET_URL is not defined in .env.local");
       return;
     }
 

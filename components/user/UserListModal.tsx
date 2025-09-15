@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { PublicUser } from "@/types/user.type";
-import { UserItem } from "./UserItem";
+import { UserItem } from "@/components/user/UserItem";
 
 interface UserListModalProps {
   isOpen: boolean;

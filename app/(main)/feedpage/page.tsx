@@ -2,21 +2,22 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PostCard } from "@/components/Postcard";
-import { PostCardSkeleton } from "@/components/PostCardSkeleton";
-import { CreatePostModal } from "@/components/CreatePostModal";
-import { CommentModal } from "@/components/CommentModal";
+import { PostCard } from "@/components/post/Postcard";
+import { PostCardSkeleton } from "@/components/post/PostCardSkeleton";
+import { CreatePostModal } from "@/components/post/CreatePostModal";
+import { CommentModal } from "@/components/comment/CommentModal";
 import { isAuthenticated } from "@/utils/auth";
 import { usePosts } from "@/utils/hooks/usePost";
-import { RightSidebar } from "@/components/RightSidebar";
-import { WelcomeBanner } from "@/components/WelcomeBanner";
-import { CreatePostWidget } from "@/components/CreatePostWidget";
+import { RightSidebar } from "@/components/layout/RightSidebar";
+import { WelcomeBanner } from "@/components/layout/WelcomeBanner";
+import { CreatePostWidget } from "@/components/post/CreatePostWidget";
 import { Post } from "@/types/post.types";
 import { PublicUser } from "@/types/user.type";
-import Sidebar from "@/components/Sidebar";
-import { deletePost } from "@/utils/postApi";
+import Sidebar from "@/components/layout/Sidebar";
+import { deletePost } from "@/utils/Apis/postApi";
 import toast from "react-hot-toast";
 import { useInView } from "react-intersection-observer";
+import { RightSidebarSkeleton } from "@/components/layout/RightSidebarSkeleton";
 
 const postVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -103,6 +104,14 @@ export default function FeedPage() {
     );
   };
 
+  const renderSkeletons = () => (
+    <div className="space-y-6">
+      {[...Array(3)].map((_, i) => (
+        <PostCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+
   return (
     <>
       <CommentModal
@@ -127,10 +136,8 @@ export default function FeedPage() {
             </aside>
 
             <main className="col-span-1 lg:col-span-2">
-              {loggedIn === null ? (
-                <div className="py-8">
-                  <PostCardSkeleton />
-                </div>
+              {loggedIn === null || (loading && posts.length === 0) ? (
+                renderSkeletons()
               ) : (
                 <>
                   {loggedIn ? (
@@ -203,11 +210,9 @@ export default function FeedPage() {
               )}
             </main>
 
-            {loggedIn && (
-              <div className="hidden lg:block lg:col-span-1">
-                <RightSidebar />
-              </div>
-            )}
+            <div className="hidden lg:block lg:col-span-1">
+              {loggedIn === null ? <RightSidebarSkeleton /> : <RightSidebar />}
+            </div>
           </div>
         </div>
       </div>

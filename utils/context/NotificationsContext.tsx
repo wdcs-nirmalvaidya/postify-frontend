@@ -6,11 +6,11 @@ import {
   useEffect,
   useState,
 } from "react";
-import useSocket from "@/utils/hooks/useSocket";
+import useSocket from "@/utils/hooks/useNotificationSocket";
 import {
   fetchNotifications,
   markNotificationsAsRead,
-} from "@/utils/notificationApi";
+} from "@/utils/Apis/notificationApi";
 import toast from "react-hot-toast";
 
 interface NotificationSender {

@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-}
+};
 
 export const PostCardSkeleton = () => {
   return (
@@ -33,5 +33,5 @@ export const PostCardSkeleton = () => {
         </div>
       </div>
     </motion.div>
-  )
-}
+  );
+};

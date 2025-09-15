@@ -23,6 +23,7 @@ export const CommentItem = ({ comment, onReply }: CommentItemProps) => {
         width={32}
         height={32}
         className="rounded-full mt-1"
+        unoptimized
       />
       <div className="flex-1">
         <div className="bg-gray-100 p-3 rounded-lg">

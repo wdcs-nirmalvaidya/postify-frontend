@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 
 import { Search } from "lucide-react";
-import { getFollowSuggestions, searchUsers } from "@/utils/userApi";
+import { getFollowSuggestions, searchUsers } from "@/utils/Apis/userApi";
 import { PublicUser } from "@/types/user.type";
-import { UserItem } from "./UserItem";
+import { UserItem } from "../user/UserItem";
+import { RightSidebarSkeleton } from "./RightSidebarSkeleton";
 
 export const RightSidebar = () => {
   const [suggestions, setSuggestions] = useState<PublicUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PublicUser[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -20,6 +22,8 @@ export const RightSidebar = () => {
         setSuggestions(data);
       } catch (error) {
         console.error("Failed to fetch suggestions", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchSuggestions();
@@ -45,6 +49,10 @@ export const RightSidebar = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
+
+  if (loading) {
+    return <RightSidebarSkeleton />;
+  }
 
   const usersToShow = searchQuery.trim() ? searchResults : suggestions;
 

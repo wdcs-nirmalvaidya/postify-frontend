@@ -1,6 +1,13 @@
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import { ChatProvider } from "@/utils/context/ChatContext";
+import Navbar from "@/components/layout/Navbar";
 import { NotificationsProvider } from "@/utils/context/NotificationsContext";
+
+export const metadata = {
+  title: "Postify",
+  description: "A modern social media platform.",
+};
 
 export default function RootLayout({
   children,
@@ -9,13 +16,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
-        <div className="flex min-h-screen">
-          <Toaster position="top-center" reverseOrder={false} />
+      <body className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+        <ChatProvider>
           <NotificationsProvider>
-            <main className="flex-1">{children}</main>
+            <Toaster position="top-center" reverseOrder={false} />
+            <main className="flex-1 flex flex-col">{children}</main>
           </NotificationsProvider>
-        </div>
+        </ChatProvider>
       </body>
     </html>
   );

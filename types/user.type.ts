@@ -5,7 +5,6 @@ export interface PublicUser {
   username: string;
   name: string | null;
   email: string;
-  password?: string;
   avatar_url: string | null;
   bio: string | null;
   role: UserRole;

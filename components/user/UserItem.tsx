@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { followUser, unfollowUser } from "@/utils/userApi";
+import { followUser, unfollowUser } from "@/utils/Apis/userApi";
 
 export const UserItem = ({
   user,
@@ -61,6 +61,7 @@ export const UserItem = ({
           width={40}
           height={40}
           className="rounded-full"
+          unoptimized
         />
         <div>
           <p className="font-bold text-sm text-gray-800 group-hover:underline">

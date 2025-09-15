@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send } from "lucide-react";
 import toast from "react-hot-toast";
 import { Comment } from "@/types/comment.type";
-import { getComments, createComment } from "../utils/commentApi";
+import { getComments, createComment } from "@/utils/Apis/commentApi";
 import { CommentItem } from "./CommentItem";
+import { CommentItemSkeleton } from "./CommentItemSkeleton";
 
 interface CommentModalProps {
   postId: string | null;
@@ -106,6 +107,14 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
     }
   };
 
+  const renderSkeletons = () => (
+    <div className="space-y-4">
+      {[...Array(5)].map((_, i) => (
+        <CommentItemSkeleton key={i} />
+      ))}
+    </div>
+  );
+
   return (
     <AnimatePresence>
       {postId && (
@@ -140,17 +149,15 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {loading ? (
-                <p>Loading...</p>
-              ) : (
-                comments.map((comment) => (
-                  <CommentItem
-                    key={comment.id}
-                    comment={comment}
-                    onReply={handleSetReplyingTo}
-                  />
-                ))
-              )}
+              {loading
+                ? renderSkeletons()
+                : comments.map((comment) => (
+                    <CommentItem
+                      key={comment.id}
+                      comment={comment}
+                      onReply={handleSetReplyingTo}
+                    />
+                  ))}
             </div>
 
             <div className="p-4 border-t">

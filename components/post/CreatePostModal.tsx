@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, UploadCloud } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
-import { createPost, updatePost, getCategories } from "@/utils/postApi";
+import { createPost, updatePost, getCategories } from "@/utils/Apis/postApi";
 import { PostFormData, Post } from "@/types/post.types";
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -200,6 +200,7 @@ export const CreatePostModal = ({
                             width={200}
                             height={200}
                             className="mx-auto h-24 w-auto rounded-md object-cover"
+                            unoptimized
                           />
                         )}
                         {mediaType === "video" && mediaPreview && (

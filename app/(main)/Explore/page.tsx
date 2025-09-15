@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { PublicUser } from "@/types/user.type";
-import { getRandomUsers, searchUsers } from "@/utils/userApi";
-import { AuthGuard } from "@/components/AuthGurd";
-import { UserItem } from "@/components/UserItem";
+import { getRandomUsers, searchUsers } from "@/utils/Apis/userApi";
+import { AuthGuard } from "@/components/user/AuthGurd";
+import { UserItem } from "@/components/user/UserItem";
 import { Search } from "lucide-react";
+import { UserItemSkeleton } from "@/components/user/UserItemSkeleton";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -53,6 +54,19 @@ export default function ExplorePage() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
+  const renderSkeletons = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
+        >
+          <UserItemSkeleton />
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <AuthGuard>
       <div className="min-h-screen bg-gray-50">
@@ -83,7 +97,7 @@ export default function ExplorePage() {
           </div>
 
           {loading ? (
-            <p className="text-center">Loading suggestions...</p>
+            renderSkeletons()
           ) : isSearching ? (
             <p className="text-center">Searching...</p>
           ) : users.length === 0 ? (

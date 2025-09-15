@@ -8,7 +8,7 @@ import {
   dislikePost,
   undislikePost,
   getPosts,
-} from "@/utils/postApi";
+} from "@/utils/Apis/postApi";
 import { isAuthenticated } from "@/utils/auth";
 
 export const usePosts = (isLoggedIn: boolean | null) => {
