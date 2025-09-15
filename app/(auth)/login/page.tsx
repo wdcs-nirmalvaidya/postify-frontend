@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { loginUser } from "@/utils/authApi";
+import { loginUser } from "@/utils/Apis/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginFormSchema } from "@/validations/login.form";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";

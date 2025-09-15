@@ -1,15 +1,29 @@
-import './globals.css'
-import { Toaster } from 'react-hot-toast';
+import "./globals.css";
+import { Toaster } from "react-hot-toast";
+import { ChatProvider } from "@/utils/context/ChatContext";
+import Navbar from "@/components/layout/Navbar";
+import { NotificationsProvider } from "@/utils/context/NotificationsContext";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata = {
+  title: "Postify",
+  description: "A modern social media platform.",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
-        <div className="flex min-h-screen">
-          <Toaster position="top-center" reverseOrder={false} />
-          <main className="flex-1">{children}</main>
-        </div>
+      <body className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+        <ChatProvider>
+          <NotificationsProvider>
+            <Toaster position="top-center" reverseOrder={false} />
+            <main className="flex-1 flex flex-col">{children}</main>
+          </NotificationsProvider>
+        </ChatProvider>
       </body>
     </html>
-  )
+  );
 }

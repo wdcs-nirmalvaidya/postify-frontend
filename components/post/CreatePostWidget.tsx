@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Plus } from "lucide-react";
 import Image from "next/image";
-import { createPost } from "@/utils/postApi";
+import { createPost } from "@/utils/Apis/postApi";
 import { Post } from "@/types/post.types";
 
 interface CreatePostWidgetProps {
@@ -79,6 +79,7 @@ export const CreatePostWidget = ({
             width={40}
             height={40}
             className="rounded-full object-cover flex-shrink-0"
+            unoptimized
           />
           <textarea
             {...register("content_text", { required: true })}

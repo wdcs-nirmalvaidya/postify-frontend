@@ -24,7 +24,6 @@ apiClient.interceptors.request.use(
 export const fetchNotifications = async () => {
   try {
     const response = await apiClient.get("/notifications");
-    console.log("Notifications From : ", response.data);
     return response.data;
   } catch (error) {
     if (error instanceof Error) {

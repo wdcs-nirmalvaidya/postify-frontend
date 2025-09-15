@@ -1,8 +1,10 @@
-import { PostAuthor } from './post.types';
+import { PublicUser } from "./user.type"; 
 
 export interface Comment {
   id: string;
   content_text: string;
   created_at: string;
-  author: PostAuthor;
+  author: PublicUser;
+  parent_id?: string | null;
+  replies?: Comment[];
 }

@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { PostCard } from "@/components/Postcard";
+import { PostCard } from "@/components/post/Postcard";
 import { Post } from "@/types/post.types";
 import { UserProfile, PublicUser } from "@/types/user.type";
 import {
@@ -15,18 +15,19 @@ import {
   unfollowUser,
   getFollowers,
   getFollowing,
-} from "@/utils/userApi";
+} from "@/utils/Apis/userApi";
 import {
   deletePost,
   likePost,
   unlikePost,
   dislikePost,
   undislikePost,
-} from "@/utils/postApi";
-import { CreatePostModal } from "@/components/CreatePostModal";
-import { EditProfileModal } from "@/components/EditProfileModal";
-import { CommentModal } from "@/components/CommentModal";
-import { FollowListModal } from "@/components/FollowListModal";
+} from "@/utils/Apis/postApi";
+import { CreatePostModal } from "@/components/post/CreatePostModal";
+import { EditProfileModal } from "@/components/post/EditProfileModal";
+import { CommentModal } from "@/components/comment/CommentModal";
+import { UserListModal } from "@/components/user/UserListModal";
+import { ProfilePageSkeleton } from "./ProfilePageSkeleton";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -63,7 +64,7 @@ export default function ProfilePage() {
     try {
       const postsData = await getUserPosts(username);
       setPosts(postsData);
-    } catch (error) {
+    } catch {
       toast.error("Could not refresh user's posts.");
     }
   };
@@ -221,7 +222,15 @@ export default function ProfilePage() {
     try {
       const apiCall = type === "followers" ? getFollowers : getFollowing;
       const users = await apiCall(profile.username);
-      setFollowListUsers(users);
+      if (isOwnProfile && type === "following") {
+        const correctedUsers = users.map((u: PublicUser) => ({
+          ...u,
+          is_following: true,
+        }));
+        setFollowListUsers(correctedUsers);
+      } else {
+        setFollowListUsers(users);
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -233,8 +242,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading)
-    return <div className="text-center py-20">Loading profile...</div>;
+  if (loading) return <ProfilePageSkeleton />;
   if (!profile) return <div className="text-center py-20">User not found.</div>;
 
   const isOwnProfile = currentUser?.username === profile.username;
@@ -261,7 +269,7 @@ export default function ProfilePage() {
         postId={viewingCommentsOfPostId}
         onClose={() => setViewingCommentsOfPostId(null)}
       />
-      <FollowListModal
+      <UserListModal
         isOpen={isFollowModalOpen}
         onClose={() => setIsFollowModalOpen(false)}
         title={followListType}
@@ -282,6 +290,7 @@ export default function ProfilePage() {
                 width={128}
                 height={128}
                 className="rounded-full mr-8 border-4 border-blue-500"
+                unoptimized
               />
               <div className="flex-1">
                 <div className="flex justify-between items-start">

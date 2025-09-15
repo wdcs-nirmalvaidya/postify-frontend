@@ -2,6 +2,19 @@
   "name": "postyfy",
   "version": "0.1.0",
   "private": true,
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "homepage": "https://github.com/wdcs-dhruvdave/Postify.ts#readme",
+  "bugs": {
+    "url": "https://github.com/wdcs-dhruvdave/Postify.ts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wdcs-dhruvdave/Postify.ts.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "postcss.config.js",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -10,9 +23,11 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.1.1",
     "axios": "^1.11.0",
     "framer-motion": "^12.23.6",
+    "heroicons": "^2.2.0",
     "http": "^0.0.1-security",
     "lucide-react": "^0.525.0",
     "next": "15.4.2",
@@ -20,7 +35,8 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.2",
-    "socket.io": "^4.8.1",
+    "react-intersection-observer": "^9.16.0",
+    "socket.io-client": "^4.8.1",
     "zod": "^4.0.5"
   },
   "devDependencies": {

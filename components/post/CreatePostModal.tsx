@@ -1,12 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { X, UploadCloud } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
-import { createPost, updatePost, getCategories } from "@/utils/postApi";
+import { createPost, updatePost, getCategories } from "@/utils/Apis/postApi";
 import { PostFormData, Post } from "@/types/post.types";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Category {
   id: string;
@@ -30,11 +31,14 @@ export const CreatePostModal = ({
     register,
     handleSubmit,
     reset,
+    control,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<PostFormData>();
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
 
   useEffect(() => {
     if (postToEdit && isOpen) {
@@ -42,8 +46,18 @@ export const CreatePostModal = ({
       setValue("content_text", postToEdit.content_text || "");
       setValue("image_url", postToEdit.image_url || "");
       setValue("category_id", postToEdit.category_id);
+      if (postToEdit.image_url) {
+        setMediaPreview(postToEdit.image_url);
+        if (postToEdit.image_url.startsWith("data:video")) {
+          setMediaType("video");
+        } else {
+          setMediaType("image");
+        }
+      }
     } else {
       reset();
+      setMediaPreview(null);
+      setMediaType(null);
     }
   }, [postToEdit, isOpen, setValue, reset]);
 
@@ -60,22 +74,54 @@ export const CreatePostModal = ({
         }
       };
       fetchCategories();
+    } else {
+      setMediaPreview(null);
+      setMediaType(null);
     }
   }, [isOpen]);
 
+  const handleFileChange = (file: File | null) => {
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        setMediaType("image");
+      } else if (file.type.startsWith("video/")) {
+        setMediaType("video");
+      } else {
+        toast.error("Unsupported file type.");
+        setMediaType(null);
+        setMediaPreview(null);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setMediaPreview(null);
+      setMediaType(null);
+    }
+  };
+
   const onSubmit = async (data: PostFormData) => {
     try {
+      const payload = { ...data, image_url: mediaPreview ?? undefined };
       let response;
       if (postToEdit) {
-        response = await updatePost(postToEdit.id, data);
+        response = await updatePost(postToEdit.id, payload);
         toast.success("Post updated successfully!");
       } else {
-        response = await createPost(data);
+        response = await createPost(payload);
         toast.success("Post created successfully!");
       }
-      reset();
-      onPostCreated(response.post);
-      onClose();
+      if (response && response.post) {
+        reset();
+        onPostCreated(response.post);
+        onClose();
+      } else {
+        throw new Error("Failed to receive a valid response from the server.");
+      }
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
@@ -117,39 +163,85 @@ export const CreatePostModal = ({
                   Title
                 </label>
                 <input
-                  type="text"
                   {...register("title", { required: "Title is required" })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="An interesting title"
                 />
-                {errors.title && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.title.message}
-                  </p>
-                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Content
                 </label>
                 <textarea
-                  rows={5}
                   {...register("content_text")}
+                  rows={5}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="What's on your mind?"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL (Optional)
+                  Image or Video (Optional)
                 </label>
-                <input
-                  type="text"
-                  {...register("image_url")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image.png"
+                <Controller
+                  name="image_url"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                      <div className="space-y-1 text-center">
+                        {!mediaPreview && (
+                          <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                        )}
+                        {mediaType === "image" && mediaPreview && (
+                          <Image
+                            src={mediaPreview}
+                            alt="Preview"
+                            width={200}
+                            height={200}
+                            className="mx-auto h-24 w-auto rounded-md object-cover"
+                            unoptimized
+                          />
+                        )}
+                        {mediaType === "video" && mediaPreview && (
+                          <video
+                            src={mediaPreview}
+                            controls
+                            className="mx-auto h-24 w-auto rounded-md"
+                          />
+                        )}
+
+                        <div className="flex text-sm text-gray-600">
+                          <label
+                            htmlFor="file-upload"
+                            className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                          >
+                            <span>Upload a file</span>
+                            <input
+                              id="file-upload"
+                              name="file-upload"
+                              type="file"
+                              className="sr-only"
+                              accept="image/*,video/*"
+                              onChange={(e) => {
+                                const file = e.target.files
+                                  ? e.target.files[0]
+                                  : null;
+                                handleFileChange(file);
+                                field.onChange(file);
+                              }}
+                            />
+                          </label>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Image or Video up to 50MB
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Category (Optional)
@@ -166,6 +258,7 @@ export const CreatePostModal = ({
                   ))}
                 </select>
               </div>
+
               <div className="flex justify-end pt-6 border-t mt-6 space-x-3">
                 <button
                   type="button"
@@ -177,7 +270,7 @@ export const CreatePostModal = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-blue-400"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:bg-blue-300"
                 >
                   {isSubmitting
                     ? "Saving..."

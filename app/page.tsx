@@ -1,7 +1,6 @@
 "use client";
 
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import Footer from "@/components/layout/Footer";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { isAuthenticated } from "@/utils/auth";
@@ -10,7 +9,6 @@ export default function HomePage() {
   const isAuth = isAuthenticated();
   return (
     <>
-      <Navbar />
       <section className="min-h-screen bg-gradient-to-br from-white to-blue-50 px-4 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

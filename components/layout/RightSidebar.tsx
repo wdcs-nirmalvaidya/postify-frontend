@@ -1,80 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
+
 import { Search } from "lucide-react";
-import {
-  getFollowSuggestions,
-  searchUsers,
-  followUser,
-  unfollowUser,
-} from "@/utils/userApi";
+import { getFollowSuggestions, searchUsers } from "@/utils/Apis/userApi";
 import { PublicUser } from "@/types/user.type";
-import toast from "react-hot-toast";
-
-export const SuggestedUser = ({ user }: { user: PublicUser }) => {
-  const [isFollowed, setIsFollowed] = useState(user.is_following || false);
-
-  const handleToggleFollow = async () => {
-    const apiCall = isFollowed ? unfollowUser : followUser;
-    const originalFollowState = isFollowed;
-
-    setIsFollowed(!isFollowed);
-
-    try {
-      await apiCall(user.id);
-      toast.success(
-        isFollowed
-          ? `Unfollowed @${user.username}`
-          : `Followed @${user.username}`,
-      );
-    } catch (error) {
-      setIsFollowed(originalFollowState);
-      if (error instanceof Error) toast.error(error.message);
-    }
-  };
-
-  const buttonText = isFollowed ? "Following" : "Follow";
-  const buttonStyle = isFollowed
-    ? "bg-white text-blue-600 border border-blue-600"
-    : "bg-blue-100 text-blue-600";
-
-  return (
-    <div className="flex items-center justify-between">
-      <Link
-        href={`/profile/${user.username}`}
-        className="flex items-center space-x-3 group"
-      >
-        <Image
-          src={
-            user.avatar_url ||
-            "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
-          }
-          alt={user.name || user.username}
-          width={40}
-          height={40}
-          className="rounded-full"
-        />
-        <div>
-          <p className="font-bold text-sm text-gray-800 group-hover:underline">
-            {user.name || user.username}
-          </p>
-          <p className="text-xs text-gray-500">@{user.username}</p>
-        </div>
-      </Link>
-      <button
-        onClick={handleToggleFollow}
-        className={`px-3 py-1 text-xs font-bold rounded-full hover:opacity-80 transition ${buttonStyle}`}
-      >
-        {buttonText}
-      </button>
-    </div>
-  );
-};
+import { UserItem } from "../user/UserItem";
+import { RightSidebarSkeleton } from "./RightSidebarSkeleton";
 
 export const RightSidebar = () => {
   const [suggestions, setSuggestions] = useState<PublicUser[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<PublicUser[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -86,6 +22,8 @@ export const RightSidebar = () => {
         setSuggestions(data);
       } catch (error) {
         console.error("Failed to fetch suggestions", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchSuggestions();
@@ -111,6 +49,10 @@ export const RightSidebar = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
+
+  if (loading) {
+    return <RightSidebarSkeleton />;
+  }
 
   const usersToShow = searchQuery.trim() ? searchResults : suggestions;
 
@@ -142,7 +84,7 @@ export const RightSidebar = () => {
         )}
 
         {usersToShow.map((user) => (
-          <SuggestedUser key={user.id} user={user} />
+          <UserItem key={user.id} user={user} />
         ))}
       </div>
     </aside>

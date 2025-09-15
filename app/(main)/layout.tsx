@@ -1,23 +1,18 @@
-import Navbar from "../../components/Navbar";
-import Sidebar from "../../components/Sidebar";
-import Footer from "../../components/Footer";
-import "../globals.css";
-import { Toaster } from "react-hot-toast";
+import Navbar from "@/components/layout/Navbar";
+import Sidebar from "@/components/layout/Sidebar";
 
-export default function RootLayout({
+export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-gray-50 text-gray-900">
+    <>
       <Navbar />
-      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex min-h-screen">
         <Sidebar />
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 ml-64">{children}</main>
       </div>
-      <Footer />
-    </div>
+    </>
   );
 }

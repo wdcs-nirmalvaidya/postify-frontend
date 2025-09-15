@@ -8,54 +8,26 @@ import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Bell } from "lucide-react";
 import { PublicUser } from "@/types/user.type";
-import NotificationList from "./Notification";
-import { fetchNotifications } from "@/utils/notificationApi";
+import NotificationList from "../NotificationList";
+import { useNotifications } from "@/utils/context/NotificationsContext";
+import { NavbarSkeleton } from "./NavbarSkeleton";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const notificationRef = useRef<HTMLDivElement>(null);
 
-  const [unreadCount, setUnreadCount] = useState(0);
+  const notificationsContext = useNotifications();
+  const unreadCount = notificationsContext?.unreadCount ?? 0;
+
   const [user, setUser] = useState<PublicUser | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
-    const loadUnread = async () => {
-      try {
-        const data = await fetchNotifications();
-        const count = data.filter((n: { read: boolean }) => !n.read).length;
-        setUnreadCount(count);
-      } catch (err) {
-        console.error("Failed to fetch notifications", err);
-      }
-    };
-
-    if (user) loadUnread();
-  }, [user]);
-
-  useEffect(() => {
-    if (!isNotificationOpen) return;
-
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target as Node)
-      ) {
-        setIsNotificationOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isNotificationOpen]);
-
-  useEffect(() => {
-    setMounted(true);
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
@@ -64,6 +36,7 @@ export default function Navbar() {
     } else {
       setUser(null);
     }
+    setLoading(false);
 
     setIsMobileMenuOpen(false);
     setIsProfileMenuOpen(false);
@@ -97,7 +70,23 @@ export default function Navbar() {
     </Link>
   );
 
-  if (!mounted) return null;
+  useEffect(() => {
+    if (!isNotificationOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNotificationOpen]);
+
+  if (loading) return <NavbarSkeleton />;
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b shadow-sm sticky top-0 z-50">
@@ -133,13 +122,13 @@ export default function Navbar() {
                       exit={{ opacity: 0, y: -10 }}
                       className="absolute right-0 mt-2 z-20"
                     >
-                      <NotificationList
-                        currentuser={user}
-                        onUnreadCountChange={setUnreadCount}
-                      />
+                      <NotificationList />
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
+              <div>
+                <p>Hello, {user.username}</p>
               </div>
 
               <div className="relative">
@@ -153,6 +142,7 @@ export default function Navbar() {
                     width={36}
                     height={36}
                     className="rounded-full ring-2 ring-offset-2 ring-blue-500"
+                    unoptimized
                   />
                 </button>
                 <AnimatePresence>
