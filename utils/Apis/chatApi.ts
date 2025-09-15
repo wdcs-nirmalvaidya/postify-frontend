@@ -37,6 +37,24 @@ export const getConversations = async (): Promise<Conversation[]> => {
   }
 };
 
+export const createConversation = async (
+  receiverId: string,
+): Promise<{ conversationId: string } | undefined> => {
+  try {
+    const response = await chatApiClient.post("/chat/conversations", {
+      receiverId,
+    });
+    return response.data;
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      throw new Error(
+        err.response?.data?.message || "Failed to create conversation.",
+      );
+    }
+    return undefined;
+  }
+};
+
 export const getMessages = async (
   conversationId: string,
   pageNum: number,
@@ -46,6 +64,8 @@ export const getMessages = async (
     const response = await chatApiClient.get(
       `/chat/conversations/${conversationId}/messages?page=${pageNum}&limit=${limit}`,
     );
+    console.log("🚀 ~ getMessages ~ response:", response);
+
     return response.data;
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {

@@ -3,12 +3,9 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { AuthGuard } from "@/components/user/AuthGurd";
-import { PublicUser } from "@/types/user.type";
 import { updateUserPrivacy } from "@/utils/Apis/userApi";
 
 export default function SettingsPage() {
-  const [currentUser, setCurrentUser] = useState<PublicUser | null>(null);
-
   const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +13,6 @@ export default function SettingsPage() {
     const userData = localStorage.getItem("user");
     if (userData) {
       const user = JSON.parse(userData);
-      setCurrentUser(user);
       setIsPrivate(user.is_private || false);
     }
   }, []);
@@ -31,7 +27,6 @@ export default function SettingsPage() {
 
       if (response.user) {
         localStorage.setItem("user", JSON.stringify(response.user));
-        setCurrentUser(response.user);
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

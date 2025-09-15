@@ -20,7 +20,6 @@ export default function RootLayout({
         <ChatProvider>
           <NotificationsProvider>
             <Toaster position="top-center" reverseOrder={false} />
-            <Navbar />
             <main className="flex-1 flex flex-col">{children}</main>
           </NotificationsProvider>
         </ChatProvider>

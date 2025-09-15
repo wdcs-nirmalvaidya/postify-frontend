@@ -6,9 +6,9 @@ import React, {
   ReactNode,
   useEffect,
   useRef,
-  useState,
   useMemo,
   useCallback,
+  useState,
 } from "react";
 import { Socket, io } from "socket.io-client";
 import { Conversation, Message, UnReadnotification } from "@/types/chat.types";
@@ -19,7 +19,6 @@ interface ChatState {
   activeConversationId: string | null;
   loadingConversations: boolean;
   loadingMessages: boolean;
-  isConnected: boolean;
 }
 
 type ChatAction =
@@ -41,7 +40,8 @@ type ChatAction =
   | {
       type: "REPLACE_MESSAGE";
       payload: { tempId: string; finalMessage: Message };
-    };
+    }
+  | { type: "CLEAR_MESSAGES"; payload: string };
 
 const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   switch (action.type) {
@@ -65,7 +65,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
           ...state.messages,
           [action.payload.conversationId]: [...action.payload.messages].sort(
             (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
           ),
         },
         loadingMessages: false,
@@ -75,12 +75,16 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       const msg = action.payload;
       const existing = state.messages[msg.conversationId] || [];
 
-      if (existing.some((m) => m.id === msg.id || m.id === msg.tempId))
+      if (
+        existing.some(
+          (m) => m.id === msg.id || (msg.tempId && m.id === msg.tempId),
+        )
+      )
         return state;
 
       const updatedMessages = [...existing, msg].sort(
         (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
       return {
@@ -104,6 +108,8 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 
     case "UPDATE_CONVERSATION_NOTIFICATION": {
       const notif = action.payload;
+      const isActive = state.activeConversationId === notif.conversationId;
+
       return {
         ...state,
         conversations: state.conversations
@@ -112,10 +118,8 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
               ? {
                   ...c,
                   lastMessage: notif.lastMessage,
-                  unreadCount: (c.unreadCount || 0) + 1,
-                  updatedAt: notif.lastMessage
-                    ? notif.lastMessage.createdAt
-                    : c.updatedAt,
+                  unreadCount: isActive ? 0 : (c.unreadCount || 0) + 1,
+                  updatedAt: notif.lastMessage?.createdAt || c.updatedAt,
                 }
               : c,
           )
@@ -146,7 +150,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 
       const updated = [...unique, ...current].sort(
         (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
       return {
@@ -173,6 +177,15 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       };
     }
 
+    case "CLEAR_MESSAGES":
+      return {
+        ...state,
+        messages: {
+          ...state.messages,
+          [action.payload]: [],
+        },
+      };
+
     default:
       return state;
   }
@@ -198,11 +211,20 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     activeConversationId: null,
     loadingConversations: true,
     loadingMessages: false,
-    isConnected: false,
   });
 
   const [isConnected, setIsConnected] = useState(false);
   const previousConversationIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isConnected && socketref.current) {
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        socketref.current.emit("join_user", userId);
+        console.log(`🚪 Joined user room: ${userId}`);
+      }
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -220,6 +242,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
       socketref.current.on("receive_message", (message: Message) => {
         dispatch({ type: "ADD_MESSAGE", payload: message });
+        console.log("📩 Received:", message);
       });
 
       socketref.current.on(
@@ -239,7 +262,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         socketref.current = null;
       }
     };
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     if (isConnected && socketref.current) {

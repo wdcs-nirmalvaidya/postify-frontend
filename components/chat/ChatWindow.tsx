@@ -1,86 +1,85 @@
 "use client";
 
 import { useChat } from "@/utils/context/ChatContext";
-import { useAuth } from "@/utils/hooks/useAuth";
-import Image from "next/image";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
-import { getChatObjectMetadata } from "@/utils/helpers";
 import { getMessages } from "@/utils/Apis/chatApi";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
+import { PublicUser } from "@/types/user.type";
+import { ChatHeader } from "./ChatHeader";
+import { MessageSkeleton } from "./skeletons/MessageSkeleton";
 
-export const ChatWindow = () => {
+export const ChatWindow = ({ user }: { user: PublicUser }) => {
   const { state, dispatch } = useChat();
-  const { user } = useAuth();
-  const { activeConversationId, conversations, messages, loadingMessages } =
-    state;
+  const { activeConversationId, messages, loadingMessages } = state;
 
   const [pageNum, setPageNum] = useState(1);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const messageListRef = useRef<HTMLDivElement>(null);
-  const inViewRef = useRef<HTMLDivElement>(null);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
-  const activeConversation = conversations.find(
-    (c) => c.id === activeConversationId,
-  );
   const activeMessages = messages[activeConversationId || ""] || [];
 
-  const { ref, inView } = useInView({
+  const { ref: inViewRef, inView } = useInView({
     threshold: 0,
-    triggerOnce: false,
+    delay: 100,
   });
 
-  const setRefs = useCallback(
-    (node: HTMLDivElement | null) => {
-      ref(node);
-      if (inViewRef.current) {
-        inViewRef.current = node;
+  const fetchMessages = useCallback(
+    async (pageToFetch: number) => {
+      if (!activeConversationId || loadingMessages || !hasMoreMessages) return;
+
+      dispatch({ type: "SET_LOADING_MESSAGES", payload: true });
+
+      try {
+        const newMessages = await getMessages(
+          activeConversationId,
+          pageToFetch,
+          20,
+        );
+        if (newMessages.length > 0) {
+          dispatch({
+            type: "PREPEND_MESSAGES",
+            payload: {
+              conversationId: activeConversationId,
+              messages: newMessages,
+            },
+          });
+          setPageNum((prev) => prev + 1);
+        } else {
+          setHasMoreMessages(false);
+        }
+      } catch (error) {
+        console.error("[fetchMessages] Error:", error);
+      } finally {
+        dispatch({
+          type: "MARK_CONVERSATION_READ",
+          payload: activeConversationId,
+        });
+        dispatch({ type: "SET_LOADING_MESSAGES", payload: false });
       }
     },
-    [ref],
+    [activeConversationId, dispatch, loadingMessages, hasMoreMessages],
   );
 
-  const fetchMessages = useCallback(async () => {
-    if (!activeConversationId || loadingMessages) return;
-    dispatch({ type: "SET_LOADING_MESSAGES", payload: true });
-
-    try {
-      const newMessages = await getMessages(activeConversationId, pageNum, 20);
-      if (newMessages.length > 0) {
-        dispatch({
-          type: "PREPEND_MESSAGES",
-          payload: {
-            conversationId: activeConversationId,
-            messages: newMessages,
-          },
-        });
-        setPageNum((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("[fetchMessages] Error:", error);
-    } finally {
-      dispatch({ type: "SET_LOADING_MESSAGES", payload: false });
-    }
-  }, [activeConversationId, pageNum, dispatch, loadingMessages]);
+  useEffect(() => {
+    const initConversation = async () => {
+      if (!activeConversationId) return;
+      dispatch({ type: "CLEAR_MESSAGES", payload: activeConversationId });
+      setPageNum(1);
+      setHasMoreMessages(true);
+      await fetchMessages(1);
+    };
+    initConversation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeConversationId, dispatch]);
 
   useEffect(() => {
-    if (inView) {
-      fetchMessages();
+    if (inView && hasMoreMessages && !loadingMessages && pageNum > 1) {
+      fetchMessages(pageNum);
     }
-  }, [inView, fetchMessages]);
+  }, [inView, hasMoreMessages, loadingMessages, pageNum, fetchMessages]);
 
-  useEffect(() => {
-    setPageNum(1);
-
-    const timeout = setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-
-    return () => clearTimeout(timeout);
-  }, [activeConversationId]);
-
-  if (!activeConversation || !user) {
+  if (!activeConversationId) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <p className="text-gray-500 dark:text-gray-400">
@@ -90,41 +89,31 @@ export const ChatWindow = () => {
     );
   }
 
-  const chatMetadata = getChatObjectMetadata(activeConversation, user);
-
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-50 dark:bg-gray-900">
-      <div className="sticky top-0 z-10 flex items-center p-3 border-b bg-white dark:bg-gray-800 dark:border-gray-700 flex-shrink-0 shadow-sm">
-        <Image
-          src={chatMetadata.avatar}
-          alt={chatMetadata.title}
-          width={40}
-          height={40}
-          className="rounded-full mr-4 object-cover"
-        />
-        <div>
-          <p className="font-bold text-gray-800 dark:text-white">
-            {chatMetadata.title}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {chatMetadata.description}
-          </p>
-        </div>
+      <ChatHeader user={user} />
+
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col-reverse">
+        {loadingMessages && activeMessages.length === 0 ? (
+          <div className="space-y-4">
+            <MessageSkeleton />
+            <MessageSkeleton sent />
+            <MessageSkeleton />
+            <MessageSkeleton />
+            <MessageSkeleton sent />
+          </div>
+        ) : (
+          <MessageList messages={activeMessages} />
+        )}
+
+        {hasMoreMessages && <div ref={inViewRef} className="h-1" />}
+
+        {loadingMessages && activeMessages.length > 0 && (
+          <div className="text-center p-4">Loading older messages...</div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4" ref={messageListRef}>
-        <div ref={setRefs} className="h-6" />
-        <MessageList
-          messages={activeMessages}
-          isLoading={loadingMessages}
-          messageListRef={messageListRef}
-          messagesEndRef={messagesEndRef}
-          inViewRef={inViewRef}
-        />
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="sticky bottom-0 z-10 bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex-shrink-0">
+      <div className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex-shrink-0">
         <MessageInput conversationId={activeConversationId!} />
       </div>
     </div>

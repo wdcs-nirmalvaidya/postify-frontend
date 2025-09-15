@@ -41,9 +41,6 @@ export const PostCard = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [userListTitle, setUserListTitle] = useState("");
-  const [userListType, setUserListType] = useState<"likers" | "dislikers">(
-    "likers",
-  );
 
   const [isUserListModalOpen, setIsUserListModalOpen] = useState(false);
   const [isModalLoading, setIsModalLoading] = useState(false);
@@ -66,8 +63,6 @@ export const PostCard = ({
   const isVideo = post?.image_url?.startsWith("data:video");
 
   const openUserListModal = async (type: "likers" | "dislikers") => {
-    setUserListType(type);
-
     if (type === "likers") {
       await fetchPostLikers(post.id);
     } else {

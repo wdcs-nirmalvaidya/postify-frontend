@@ -1,8 +1,18 @@
-export const MessageSkeleton = () => {
+export const MessageSkeleton = ({ sent }: { sent?: boolean }) => {
   return (
-    <div className="flex items-end gap-2 animate-pulse">
-      <div className="w-10 h-10 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
-      <div className="w-2/3 h-12 bg-gray-300 dark:bg-gray-700 rounded-2xl rounded-bl-none"></div>
+    <div
+      className={`flex w-full items-end gap-2 animate-pulse ${
+        sent ? "justify-end" : "justify-start"
+      }`}
+    >
+      {!sent && (
+        <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+      )}
+      <div
+        className={`h-12 rounded-2xl bg-gray-300 dark:bg-gray-700 ${
+          sent ? "w-2/3 rounded-br-none" : "w-1/2 rounded-bl-none"
+        }`}
+      ></div>
     </div>
   );
 };

@@ -27,6 +27,7 @@ import { CreatePostModal } from "@/components/post/CreatePostModal";
 import { EditProfileModal } from "@/components/post/EditProfileModal";
 import { CommentModal } from "@/components/comment/CommentModal";
 import { UserListModal } from "@/components/user/UserListModal";
+import { ProfilePageSkeleton } from "./ProfilePageSkeleton";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -241,8 +242,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading)
-    return <div className="text-center py-20">Loading profile...</div>;
+  if (loading) return <ProfilePageSkeleton />;
   if (!profile) return <div className="text-center py-20">User not found.</div>;
 
   const isOwnProfile = currentUser?.username === profile.username;

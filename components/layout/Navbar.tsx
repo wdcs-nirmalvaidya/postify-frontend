@@ -10,6 +10,7 @@ import { Menu, X, Bell } from "lucide-react";
 import { PublicUser } from "@/types/user.type";
 import NotificationList from "../NotificationList";
 import { useNotifications } from "@/utils/context/NotificationsContext";
+import { NavbarSkeleton } from "./NavbarSkeleton";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -20,19 +21,22 @@ export default function Navbar() {
   const unreadCount = notificationsContext?.unreadCount ?? 0;
 
   const [user, setUser] = useState<PublicUser | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
 
-    if (token && userData) setUser(JSON.parse(userData));
-    else setUser(null);
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
 
     setIsMobileMenuOpen(false);
     setIsProfileMenuOpen(false);
@@ -82,7 +86,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isNotificationOpen]);
 
-  if (!mounted) return null;
+  if (loading) return <NavbarSkeleton />;
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b shadow-sm sticky top-0 z-50">
@@ -124,7 +128,7 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
               <div>
-                <p>Hello, {user.name}</p>
+                <p>Hello, {user.username}</p>
               </div>
 
               <div className="relative">

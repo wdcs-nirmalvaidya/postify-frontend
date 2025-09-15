@@ -8,9 +8,11 @@ import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import { AuthGuard } from "@/components/user/AuthGurd";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "@/utils/hooks/useAuth";
 
 export default function ChatPage() {
   const { state, dispatch } = useChat();
+  const { user } = useAuth();
   const { activeConversationId } = state;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -39,9 +41,9 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <div className="flex h-screen">
+      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
         <div
-          className={`fixed inset-y-0 left-0 z-30 w-80 transform bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-40 w-80 transform bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -49,7 +51,7 @@ export default function ChatPage() {
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="md:hidden p-2 bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+          <div className="md:hidden p-2 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex justify-between items-center">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               {isSidebarOpen ? (
                 <XMarkIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
@@ -57,15 +59,28 @@ export default function ChatPage() {
                 <Bars3Icon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
               )}
             </button>
+            <h1 className="text-lg font-bold text-gray-800 dark:text-white">
+              Chats
+            </h1>
           </div>
 
-          {activeConversationId ? (
-            <ChatWindow key={activeConversationId} />
+          {activeConversationId && user ? (
+            <ChatWindow key={activeConversationId} user={user} />
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-              <p className="text-gray-500 dark:text-gray-400">
-                Select a conversation to start chatting.
-              </p>
+            <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 text-center">
+              <div className="max-w-md">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                  Welcome to Your Inbox!
+                </h2>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">
+                  Select a conversation from the list on the left to start
+                  chatting. If you don&apos;t have any conversations yet, you
+                  can start one by searching for a user.
+                </p>
+                <button className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors">
+                  Start a New Chat
+                </button>
+              </div>
             </div>
           )}
         </div>
