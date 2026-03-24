@@ -26,13 +26,13 @@ export const CommentItem = ({ comment, onReply }: CommentItemProps) => {
         unoptimized
       />
       <div className="flex-1">
-        <div className="bg-gray-100 p-3 rounded-lg">
-          <p className="font-semibold text-sm text-gray-800">
+        <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
+          <p className="font-semibold text-sm text-gray-800 dark:text-gray-200">
             {comment.author.username}
           </p>
-          <p className="text-gray-700">{comment.content_text}</p>
+          <p className="text-gray-700 dark:text-gray-300">{comment.content_text}</p>
         </div>
-        <div className="text-xs text-gray-500 mt-1 flex items-center space-x-3">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center space-x-3">
           <button
             onClick={() => onReply(comment.id)}
             className="hover:underline"

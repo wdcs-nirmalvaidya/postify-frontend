@@ -9,10 +9,12 @@ import { useInView } from "react-intersection-observer";
 import { PublicUser } from "@/types/user.type";
 import { ChatHeader } from "./ChatHeader";
 import { MessageSkeleton } from "./skeletons/MessageSkeleton";
+import { useAuth } from "@/utils/hooks/useAuth";
 
 export const ChatWindow = ({ user }: { user: PublicUser }) => {
-  const { state, dispatch } = useChat();
+  const { state, dispatch, markMessagesRead } = useChat();
   const { activeConversationId, messages, loadingMessages } = state;
+  const { user: authUser } = useAuth();
 
   const [pageNum, setPageNum] = useState(1);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
@@ -68,6 +70,10 @@ export const ChatWindow = ({ user }: { user: PublicUser }) => {
       setPageNum(1);
       setHasMoreMessages(true);
       await fetchMessages(1);
+      // Mark messages as read when opening conversation
+      if (authUser?.id) {
+        markMessagesRead(activeConversationId, authUser.id);
+      }
     };
     initConversation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,9 +85,33 @@ export const ChatWindow = ({ user }: { user: PublicUser }) => {
     }
   }, [inView, hasMoreMessages, loadingMessages, pageNum, fetchMessages]);
 
+  // Polling fallback: re-fetch page 1 every 3s to catch any messages missed by the socket
+  useEffect(() => {
+    if (!activeConversationId) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const latestMessages = await getMessages(activeConversationId, 1, 20);
+        if (latestMessages.length > 0) {
+          dispatch({
+            type: "PREPEND_MESSAGES",
+            payload: {
+              conversationId: activeConversationId,
+              messages: latestMessages,
+            },
+          });
+        }
+      } catch {
+        // Silently fail polling — primary delivery is via socket
+      }
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
+  }, [activeConversationId, dispatch]);
+
   if (!activeConversationId) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-black">
         <p className="text-gray-500 dark:text-gray-400">
           Select a conversation to start chatting.
         </p>
@@ -90,10 +120,10 @@ export const ChatWindow = ({ user }: { user: PublicUser }) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-gray-50 dark:bg-gray-900">
+    <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-black border-l dark:border-gray-800">
       <ChatHeader user={user} />
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col-reverse">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col-reverse">
         {loadingMessages && activeMessages.length === 0 ? (
           <div className="space-y-4">
             <MessageSkeleton />
@@ -113,7 +143,7 @@ export const ChatWindow = ({ user }: { user: PublicUser }) => {
         )}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 flex-shrink-0">
+      <div className="bg-white dark:bg-gray-950 border-t dark:border-gray-800 flex-shrink-0">
         <MessageInput conversationId={activeConversationId!} />
       </div>
     </div>

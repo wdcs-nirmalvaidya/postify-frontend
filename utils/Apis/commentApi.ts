@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
 
 export const getComments = async (postId: string): Promise<Comment[]> => {
   try {
-    const response = await apiClient.get(`/posts/${postId}/comments`);
+    const response = await apiClient.get(`/comments/${postId}`);
     return response.data;
   } catch (error) {
     if (error instanceof Error) {
@@ -40,7 +40,7 @@ export const createComment = async (
   parentId?: string | null,
 ): Promise<Comment> => {
   try {
-    const response = await apiClient.post(`/posts/${postId}/comments`, {
+    const response = await apiClient.post(`/comments/${postId}`, {
       content_text,
       parent_id: parentId,
     });

@@ -12,12 +12,9 @@ export const registerUser = async (data: SignupForm) => {
   try {
     const response = await apiClient.post("/auth/register", data);
     return response.data;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw new Error(
-        error.message || "Internel Server Error,Registration Failed.",
-      );
-    }
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || error.message || "Registration Failed.";
+    throw new Error(errorMessage);
   }
 };
 
@@ -25,9 +22,8 @@ export const loginUser = async (data: LoginForm) => {
   try {
     const response = await apiClient.post("/auth/login", data);
     return response.data;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw new Error(error.message || "Internel Server Error,Login Failed");
-    }
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || error.message || "Login Failed.";
+    throw new Error(errorMessage);
   }
 };

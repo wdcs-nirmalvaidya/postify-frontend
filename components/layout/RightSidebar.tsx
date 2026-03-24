@@ -64,7 +64,7 @@ export const RightSidebar = () => {
           placeholder="Search users..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all shadow-sm dark:text-white dark:placeholder-gray-400"
         />
         <Search
           className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -72,8 +72,8 @@ export const RightSidebar = () => {
         />
       </div>
 
-      <div className="p-4 bg-white border border-gray-200 rounded-lg space-y-4">
-        <h3 className="font-bold text-gray-800">
+      <div className="p-6 bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm space-y-4">
+        <h3 className="font-bold text-gray-800 dark:text-gray-200">
           {searchQuery.trim() ? "Search Results" : "Who to Follow"}
         </h3>
 
@@ -84,7 +84,7 @@ export const RightSidebar = () => {
         )}
 
         {usersToShow.map((user) => (
-          <UserItem key={user.id} user={user} />
+          <UserItem key={user.id} user={user} variant="list" />
         ))}
       </div>
     </aside>

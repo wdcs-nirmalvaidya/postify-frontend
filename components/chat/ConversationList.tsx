@@ -28,8 +28,8 @@ export const ConversationList = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-white dark:bg-gray-800">
-      <div className="p-4 border-b dark:border-gray-700 flex-shrink-0">
+    <div className="h-full flex flex-col bg-white dark:bg-gray-950 border-r dark:border-gray-800">
+      <div className="p-4 border-b dark:border-gray-800 flex-shrink-0">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
           Chats
         </h2>

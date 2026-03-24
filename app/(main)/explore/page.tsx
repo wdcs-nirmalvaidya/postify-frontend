@@ -57,10 +57,7 @@ export default function ExplorePage() {
   const renderSkeletons = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
-        >
+        <div key={i}>
           <UserItemSkeleton />
         </div>
       ))}
@@ -69,13 +66,13 @@ export default function ExplorePage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-black">
         <main className="max-w-4xl mx-auto py-8 px-4">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
               Discover Random People
             </h1>
-            <p className="text-lg text-gray-600 mt-2">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
               Expand your feed by following other creators in the community.
             </p>
           </div>
@@ -87,7 +84,7 @@ export default function ExplorePage() {
                 placeholder="Search users by name or username..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-950 border border-gray-300 dark:border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white dark:placeholder-gray-400"
               />
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -116,9 +113,8 @@ export default function ExplorePage() {
                     hidden: { opacity: 0, y: 20 },
                     visible: { opacity: 1, y: 0 },
                   }}
-                  className="bg-white p-4 rounded-lg shadow-md border border-gray-200"
                 >
-                  <UserItem user={user} />
+                  <UserItem user={user} variant="card" />
                 </motion.div>
               ))}
             </motion.div>

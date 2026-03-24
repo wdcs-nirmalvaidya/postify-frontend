@@ -41,17 +41,16 @@ export default function ChatPage() {
 
   return (
     <AuthGuard>
-      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex h-full bg-gray-100 dark:bg-black">
         <div
-          className={`fixed inset-y-0 left-0 z-40 w-80 transform bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed inset-y-0 left-0 z-40 w-80 transform bg-white dark:bg-gray-950 border-r dark:border-gray-800 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           <ConversationList />
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="md:hidden p-2 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex justify-between items-center">
+          <div className="md:hidden p-2 bg-white dark:bg-gray-950 border-b dark:border-gray-800 flex justify-between items-center">
             <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               {isSidebarOpen ? (
                 <XMarkIcon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
@@ -67,7 +66,7 @@ export default function ChatPage() {
           {activeConversationId && user ? (
             <ChatWindow key={activeConversationId} user={user} />
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 dark:bg-black p-4 text-center">
               <div className="max-w-md">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
                   Welcome to Your Inbox!

@@ -56,6 +56,7 @@ export const UserListModal = ({
                       key={user.id}
                       user={user}
                       isFollowing={isFollowing}
+                      variant="list"
                     />
                   ))}
                 </div>

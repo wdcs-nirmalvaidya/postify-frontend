@@ -31,12 +31,12 @@ const NotificationList = () => {
   };
 
   return (
-    <div className="p-4 border rounded bg-white shadow w-80">
+    <div className="p-4 border dark:border-gray-800 rounded bg-white dark:bg-gray-950 shadow w-80">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-bold">Notifications</h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Notifications</h2>
         {notifications.some((n) => !n.read) && (
           <button
-            className="text-sm text-blue-500 hover:underline"
+            className="text-sm text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
             onClick={markAllAsRead}
           >
             Mark all as read
@@ -45,7 +45,7 @@ const NotificationList = () => {
       </div>
 
       {notifications.length === 0 ? (
-        <div className="text-center py-4 text-gray-500">
+        <div className="text-center py-4 text-gray-500 dark:text-gray-400">
           No notifications yet.
         </div>
       ) : (
@@ -53,12 +53,12 @@ const NotificationList = () => {
           {notifications.map((n) => (
             <li
               key={n._id}
-              className={`p-2 border-b last:border-b-0 ${!n.read ? "bg-blue-50" : ""}`}
+              className={`p-3 border-b dark:border-gray-800 last:border-b-0 transition-colors ${!n.read ? "bg-blue-50 dark:bg-blue-900/20" : "hover:bg-gray-50 dark:hover:bg-gray-900"}`}
             >
-              <p className={!n.read ? "font-semibold" : ""}>
+              <p className={`text-sm ${!n.read ? "font-semibold text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}>
                 {renderMessage(n)}
               </p>
-              <span className="ml-2 text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-500 block mt-1">
                 {new Date(n.createdAt).toLocaleString()}
               </span>
             </li>

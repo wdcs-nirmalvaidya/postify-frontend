@@ -29,7 +29,7 @@ export const createPost = async (data: PostFormData) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to create post. Please try again later.",
+        "Failed to create post. Please try again later.",
       );
     }
     throw new Error(
@@ -46,7 +46,7 @@ export const getCategories = async () => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to fetch categories. Please try again later.",
+        "Failed to fetch categories. Please try again later.",
       );
     }
     throw new Error(
@@ -65,7 +65,7 @@ export const getPosts = async (page: number = 1, limit: number = 10) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to fetch posts. Please try again later.",
+        "Failed to fetch posts. Please try again later.",
       );
     }
     throw new Error(
@@ -84,7 +84,7 @@ export const getFeed = async (page = 1, limit = 10) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to fetch feed. Please try again later.",
+        "Failed to fetch feed. Please try again later.",
       );
     }
     throw new Error(
@@ -93,15 +93,15 @@ export const getFeed = async (page = 1, limit = 10) => {
   }
 };
 
-export const likePost = async (postId: string) => {
+export const likePost = async (postId: string, type: string = 'like') => {
   try {
-    const response = await apiClient.post(`/posts/${postId}/like`);
+    const response = await apiClient.post(`/posts/${postId}/like`, { type });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to like the post. Please try again later.",
+        "Failed to like the post. Please try again later.",
       );
     }
     throw new Error(
@@ -118,7 +118,7 @@ export const unlikePost = async (postId: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to unlike the post. Please try again later.",
+        "Failed to unlike the post. Please try again later.",
       );
     }
     throw new Error(
@@ -135,7 +135,7 @@ export const dislikePost = async (postId: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to dislike the post. Please try again later.",
+        "Failed to dislike the post. Please try again later.",
       );
     }
     throw new Error(
@@ -152,7 +152,7 @@ export const undislikePost = async (postId: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to remove dislike. Please try again later.",
+        "Failed to remove dislike. Please try again later.",
       );
     }
     throw new Error(
@@ -172,7 +172,7 @@ export const updatePost = async (
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to update the post. Please try again later.",
+        "Failed to update the post. Please try again later.",
       );
     }
     throw new Error(
@@ -189,7 +189,7 @@ export const deletePost = async (postId: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to delete the post. Please try again later.",
+        "Failed to delete the post. Please try again later.",
       );
     }
     throw new Error(
@@ -206,7 +206,7 @@ export const getPostsByUsername = async (username: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          `Failed to fetch posts for user "${username}". Please try again later.`,
+        `Failed to fetch posts for user "${username}". Please try again later.`,
       );
     }
     throw new Error(
@@ -223,7 +223,7 @@ export const getPostLikers = async (id: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to fetch likers. Please try again later.",
+        "Failed to fetch likers. Please try again later.",
       );
     }
     throw new Error(
@@ -240,7 +240,7 @@ export const getPostDislikes = async (id: string) => {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data?.message ||
-          "Failed to fetch dislikers. Please try again later.",
+        "Failed to fetch dislikers. Please try again later.",
       );
     }
     throw new Error(

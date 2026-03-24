@@ -31,6 +31,7 @@ export const usePosts = (isLoggedIn: boolean | null) => {
         } catch (error) {
           console.error("Failed to fetch feed:", error);
           toast.error("Could not fetch feed.");
+          setHasNextPage(false);
         } finally {
           setLoading(false);
         }
@@ -46,6 +47,7 @@ export const usePosts = (isLoggedIn: boolean | null) => {
         } catch (error) {
           console.error("Failed to fetch posts:", error);
           toast.error("Could not fetch posts.");
+          setHasNextPage(false);
         } finally {
           setLoading(false);
         }
@@ -74,35 +76,58 @@ export const usePosts = (isLoggedIn: boolean | null) => {
   }, []);
 
   const toggleLike = useCallback(
-    (postId: string) => {
+    (postId: string, type: string = 'like') => {
       if (!isAuthenticated())
-        return toast.error("Please log in to like posts.");
+        return toast.error("Please log in to react to posts.");
 
       const originalPosts = posts;
       const post = originalPosts.find((p) => p.id === postId);
       if (!post) return;
 
+      const previousType = post.user_reaction_type;
+      const isRemoving = previousType === type;
+
       setPosts((currentPosts) =>
-        currentPosts.map((p) =>
-          p.id === postId
-            ? {
-                ...p,
-                likes_count: p.user_has_liked
-                  ? p.likes_count - 1
-                  : p.likes_count + 1,
-                dislikes_count: p.user_has_disliked
-                  ? p.dislikes_count - 1
-                  : p.dislikes_count,
-                user_has_liked: !p.user_has_liked,
-                user_has_disliked: false,
-              }
-            : p,
-        ),
+        currentPosts.map((p) => {
+          if (p.id !== postId) return p;
+
+          const updatedPost = { ...p };
+
+          // 1. Decruft the old reaction if it existed
+          if (previousType) {
+            const countKey = `${previousType}s_count` as keyof Post;
+            if (typeof updatedPost[countKey] === 'number') {
+              (updatedPost[countKey] as number) -= 1;
+            }
+          }
+
+          // 2. Add the new reaction if we aren't just removing the old one
+          if (!isRemoving) {
+            const countKey = `${type}s_count` as keyof Post;
+            if (typeof updatedPost[countKey] === 'number') {
+              (updatedPost[countKey] as number) += 1;
+            }
+            updatedPost.user_reaction_type = type as any;
+            updatedPost.user_has_liked = true;
+          } else {
+            updatedPost.user_reaction_type = null;
+            updatedPost.user_has_liked = false;
+          }
+
+          // 3. Handle Dislike interaction (reacting removes dislike)
+          if (updatedPost.user_has_disliked) {
+            updatedPost.dislikes_count -= 1;
+            updatedPost.user_has_disliked = false;
+          }
+
+          return updatedPost;
+        }),
       );
 
-      const apiCall = post.user_has_liked ? unlikePost : likePost;
-      apiCall(postId).catch(() => {
-        toast.error("Failed to update like.");
+      const apiPromise = likePost(postId, type);
+
+      apiPromise.catch(() => {
+        toast.error("Failed to update reaction.");
         setPosts(originalPosts);
       });
     },
@@ -122,16 +147,16 @@ export const usePosts = (isLoggedIn: boolean | null) => {
         currentPosts.map((p) =>
           p.id === postId
             ? {
-                ...p,
-                dislikes_count: p.user_has_disliked
-                  ? p.dislikes_count - 1
-                  : p.dislikes_count + 1,
-                likes_count: p.user_has_liked
-                  ? p.likes_count - 1
-                  : p.likes_count,
-                user_has_disliked: !p.user_has_disliked,
-                user_has_liked: false,
-              }
+              ...p,
+              dislikes_count: p.user_has_disliked
+                ? p.dislikes_count - 1
+                : p.dislikes_count + 1,
+              likes_count: p.user_has_liked
+                ? p.likes_count - 1
+                : p.likes_count,
+              user_has_disliked: !p.user_has_disliked,
+              user_has_liked: false,
+            }
             : p,
         ),
       );

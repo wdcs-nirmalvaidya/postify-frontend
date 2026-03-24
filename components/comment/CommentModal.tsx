@@ -6,18 +6,23 @@ import { X, Send } from "lucide-react";
 import toast from "react-hot-toast";
 import { Comment } from "@/types/comment.type";
 import { getComments, createComment } from "@/utils/Apis/commentApi";
+import { generateComment, rewriteComment } from "@/utils/Apis/aiApi";
 import { CommentItem } from "./CommentItem";
 import { CommentItemSkeleton } from "./CommentItemSkeleton";
+import { Sparkles } from "lucide-react";
 
 interface CommentModalProps {
   postId: string | null;
+  postContent?: string;
   onClose: () => void;
 }
 
-export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
+export const CommentModal = ({ postId, postContent, onClose }: CommentModalProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isGeneratingAILoading, setIsGeneratingAILoading] = useState(false);
+  const [isRewritingAILoading, setIsRewritingAILoading] = useState(false);
   const [replyingTo, setReplyingTo] = useState<{
     commentId: string;
     username: string;
@@ -107,6 +112,42 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
     }
   };
 
+  const handleGenerateAIComment = async () => {
+    if (!postContent) {
+      toast.error("Can't generate a comment without post context.");
+      return;
+    }
+
+    try {
+      setIsGeneratingAILoading(true);
+      const generated = await generateComment(postContent);
+      setNewComment(generated);
+      toast.success("AI generated a comment!");
+    } catch {
+      toast.error("Failed to generate AI comment.");
+    } finally {
+      setIsGeneratingAILoading(false);
+    }
+  };
+
+  const handleRewriteAIComment = async () => {
+    if (!newComment.trim()) {
+      toast.error("Type a draft comment first to rewrite it.");
+      return;
+    }
+
+    try {
+      setIsRewritingAILoading(true);
+      const rewritten = await rewriteComment(newComment);
+      setNewComment(rewritten);
+      toast.success("AI rewrote your comment!");
+    } catch {
+      toast.error("Failed to rewrite your comment.");
+    } finally {
+      setIsRewritingAILoading(false);
+    }
+  };
+
   const renderSkeletons = () => (
     <div className="space-y-4">
       {[...Array(5)].map((_, i) => (
@@ -133,16 +174,16 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 50, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-lg shadow-xl w-full max-w-lg h-[70vh] flex flex-col"
+            className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-lg h-[70vh] flex flex-col"
           >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-xl font-bold text-blue-700">Comments</h3>
+            <div className="flex items-center justify-between p-4 border-b dark:border-gray-800">
+              <h3 className="text-xl font-bold text-blue-700 dark:text-indigo-400">Comments</h3>
               <button
                 onClick={() => {
                   onClose();
                   setReplyingTo(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
               >
                 <X size={24} />
               </button>
@@ -152,17 +193,17 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
               {loading
                 ? renderSkeletons()
                 : comments.map((comment) => (
-                    <CommentItem
-                      key={comment.id}
-                      comment={comment}
-                      onReply={handleSetReplyingTo}
-                    />
-                  ))}
+                  <CommentItem
+                    key={comment.id}
+                    comment={comment}
+                    onReply={handleSetReplyingTo}
+                  />
+                ))}
             </div>
 
-            <div className="p-4 border-t">
+            <div className="p-4 border-t dark:border-gray-800">
               {replyingTo && (
-                <div className="text-sm text-gray-500 mb-2 flex justify-between">
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-2 flex justify-between">
                   <span>
                     Replying to <strong>@{replyingTo.username}</strong>
                   </span>
@@ -174,6 +215,26 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
                   </button>
                 </div>
               )}
+
+              <div className="flex gap-2 mb-3">
+                <button
+                  onClick={handleGenerateAIComment}
+                  disabled={isGeneratingAILoading}
+                  className="flex flex-1 items-center justify-center space-x-1 py-1.5 px-3 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 focus:outline-none transition disabled:opacity-50"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>{isGeneratingAILoading ? 'Generating...' : 'Auto-generate'}</span>
+                </button>
+                <button
+                  onClick={handleRewriteAIComment}
+                  disabled={!newComment.trim() || isRewritingAILoading}
+                  className="flex flex-1 items-center justify-center space-x-1 py-1.5 px-3 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 focus:outline-none transition disabled:opacity-50"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>{isRewritingAILoading ? 'Rewriting...' : 'Rewrite'}</span>
+                </button>
+              </div>
+
               <form
                 onSubmit={handleSubmitComment}
                 className="flex items-center space-x-2"
@@ -184,7 +245,7 @@ export const CommentModal = ({ postId, onClose }: CommentModalProps) => {
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Write a comment..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"

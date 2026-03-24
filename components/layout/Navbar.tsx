@@ -11,6 +11,7 @@ import { PublicUser } from "@/types/user.type";
 import NotificationList from "../NotificationList";
 import { useNotifications } from "@/utils/context/NotificationsContext";
 import { NavbarSkeleton } from "./NavbarSkeleton";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -60,11 +61,10 @@ export default function Navbar() {
   }) => (
     <Link
       href={href}
-      className={`transition ${
-        pathname === href
-          ? "text-blue-600"
-          : "text-gray-700 hover:text-blue-500"
-      }`}
+      className={`transition ${pathname === href
+        ? "text-transparent bg-clip-text bg-ig-gradient font-bold"
+        : "text-gray-600 dark:text-gray-300 hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
+        }`}
     >
       {children}
     </Link>
@@ -89,22 +89,23 @@ export default function Navbar() {
   if (loading) return <NavbarSkeleton />;
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <header className="md:ml-64 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b dark:border-gray-800 shadow-sm sticky top-0 z-50">
+      <div className="w-full px-4 py-3 flex justify-between md:justify-end items-center">
         <Link
           href={user ? "/feedpage" : "/"}
-          className="text-2xl font-bold text-blue-600"
+          className="md:hidden text-2xl font-bold text-ig-gradient hover:opacity-80 transition-opacity"
         >
           Postify
         </Link>
 
         <nav className="hidden md:flex space-x-4 items-center text-sm font-medium">
+          <ThemeToggle />
           {user ? (
             <>
               <div className="relative" ref={notificationRef}>
                 <button
                   onClick={() => setIsNotificationOpen((prev) => !prev)}
-                  className="relative p-2 rounded-full hover:bg-gray-100 transition"
+                  className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition dark:text-white"
                   aria-label="Notifications"
                 >
                   <Bell className="w-6 h-6" />
@@ -141,7 +142,7 @@ export default function Navbar() {
                     alt={user.name || user.username}
                     width={36}
                     height={36}
-                    className="rounded-full ring-2 ring-offset-2 ring-blue-500"
+                    className="rounded-full ring-2 ring-transparent bg-gradient-to-tr from-ig-orange via-ig-red to-ig-purple p-[2px] hover:scale-105 transition-transform duration-200 object-cover w-9 h-9 aspect-square"
                     unoptimized
                   />
                 </button>
@@ -151,17 +152,17 @@ export default function Navbar() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-10"
+                      className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border dark:border-gray-700 z-10"
                     >
                       <Link
                         href={`/profile/${user.username}`}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         My Profile
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         Logout
                       </button>
@@ -175,7 +176,7 @@ export default function Navbar() {
               <NavLink href="/login">Login</NavLink>
               <Link
                 href="/signup"
-                className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                className="px-5 py-2 bg-ig-gradient text-white font-medium rounded-full hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 transform hover:-translate-y-0.5"
               >
                 Sign Up
               </Link>
@@ -183,8 +184,9 @@ export default function Navbar() {
           )}
         </nav>
 
-        <div className="md:hidden">
-          <button onClick={() => setIsMobileMenuOpen((prev) => !prev)}>
+        <div className="md:hidden flex items-center space-x-2">
+          <ThemeToggle />
+          <button onClick={() => setIsMobileMenuOpen((prev) => !prev)} className="dark:text-white">
             {isMobileMenuOpen ? <X /> : <Menu />}
           </button>
         </div>
@@ -196,7 +198,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t"
+            className="md:hidden bg-white dark:bg-gray-900 border-t dark:border-gray-800"
           >
             <nav className="flex flex-col space-y-4 p-4">
               {user ? (

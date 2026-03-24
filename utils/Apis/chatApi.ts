@@ -2,7 +2,7 @@ import axios from "axios";
 import { Conversation, Message } from "@/types/chat.types";
 
 const chatApiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_CHAT_SOCKET_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_CHAT_SOCKET_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { DUMMY_POSTS } from "@/data/dummyPosts";
 import { PostCard } from "@/components/post/Postcard";
 import { PostCardSkeleton } from "@/components/post/PostCardSkeleton";
 import { CreatePostModal } from "@/components/post/CreatePostModal";
@@ -18,6 +19,13 @@ import { deletePost } from "@/utils/Apis/postApi";
 import toast from "react-hot-toast";
 import { useInView } from "react-intersection-observer";
 import { RightSidebarSkeleton } from "@/components/layout/RightSidebarSkeleton";
+
+// Story Components
+import { StoryCarousel } from "@/components/story/StoryCarousel";
+import { StoryViewerModal } from "@/components/story/StoryViewerModal";
+import { CreateStoryModal } from "@/components/story/CreateStoryModal";
+import { fetchFeedStories, markStoryViewed, deleteStory } from "@/utils/Apis/storyApi";
+import { GroupedUserStories } from "@/types/story.types";
 
 const postVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -38,6 +46,12 @@ export default function FeedPage() {
     string | null
   >(null);
   const [currentUser, setCurrentUser] = useState<PublicUser | null>(null);
+
+  // Story States
+  const [stories, setStories] = useState<GroupedUserStories[]>([]);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+  const [isCreateStoryOpen, setIsCreateStoryOpen] = useState(false);
+  const [activeStoryGroupIndex, setActiveStoryGroupIndex] = useState(0);
 
   const {
     posts,
@@ -67,6 +81,57 @@ export default function FeedPage() {
       loadMorePosts();
     }
   }, [inView, loading, hasNextPage, loadMorePosts]);
+
+  // Fetch Stories
+  const loadStories = async () => {
+    try {
+      const data = await fetchFeedStories();
+      setStories(data);
+    } catch (error) {
+      console.error("Failed to fetch stories", error);
+    }
+  };
+
+  useEffect(() => {
+    if (loggedIn) {
+      loadStories();
+    }
+  }, [loggedIn]);
+
+  const handleViewStory = async (storyId: string) => {
+    try {
+      await markStoryViewed(storyId);
+      // Optimistically update the story as viewed locally to remove the colored ring
+      setStories((prev) =>
+        prev.map(group => {
+          let allViewed = true;
+          const updatedStories = group.stories.map(s => {
+            if (s.id === storyId) s.isViewed = true;
+            if (!s.isViewed) allViewed = false;
+            return s;
+          });
+          return { ...group, stories: updatedStories, allViewed };
+        }).sort((a, b) => { // keep sorting identical to backend if possible
+          if (a.user.id === currentUser?.id) return -1;
+          if (b.user.id === currentUser?.id) return 1;
+          if (a.allViewed === b.allViewed) return 0;
+          return a.allViewed ? 1 : -1;
+        })
+      );
+    } catch (error) {
+      console.error("Failed to mark story as viewed", error);
+    }
+  };
+
+  const handleDeleteStory = async (storyId: string) => {
+    try {
+      await deleteStory(storyId);
+      toast.success("Story deleted");
+      loadStories(); // Refresh after delete
+    } catch (error) {
+      toast.error("Failed to delete story");
+    }
+  };
 
   const handleDeletePost = useCallback(
     async (postId: string) => {
@@ -116,6 +181,7 @@ export default function FeedPage() {
     <>
       <CommentModal
         postId={viewingCommentsOfPostId}
+        postContent={posts.find(p => p.id === viewingCommentsOfPostId)?.content_text}
         onClose={() => setViewingCommentsOfPostId(null)}
       />
 
@@ -128,84 +194,112 @@ export default function FeedPage() {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-white to-blue-50">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <aside className="hidden lg:block lg:col-span-1">
-              <Sidebar />
-            </aside>
+      {loggedIn && (
+        <>
+          <CreateStoryModal
+            isOpen={isCreateStoryOpen}
+            onClose={() => setIsCreateStoryOpen(false)}
+            onStoryCreated={loadStories}
+          />
+          <StoryViewerModal
+            isOpen={isStoryViewerOpen}
+            onClose={() => setIsStoryViewerOpen(false)}
+            groupedStories={stories}
+            initialGroupIndex={activeStoryGroupIndex}
+            currentUserId={currentUser?.id}
+            onViewStory={handleViewStory}
+            onDeleteStory={handleDeleteStory}
+          />
+        </>
+      )}
 
+      <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 dark:from-black dark:to-black dark:bg-black">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <main className="col-span-1 lg:col-span-2">
               {loggedIn === null || (loading && posts.length === 0) ? (
                 renderSkeletons()
               ) : (
                 <>
                   {loggedIn ? (
-                    <CreatePostWidget
-                      openFullModal={handleOpenCreateModal}
-                      onPostCreated={addPost}
-                      avatar_url={currentUser?.avatar_url}
-                    />
+                    <>
+                      <StoryCarousel
+                        groupedStories={stories}
+                        currentUser={currentUser}
+                        onCreateStoryClick={() => setIsCreateStoryOpen(true)}
+                        onStoryClick={(idx) => { setActiveStoryGroupIndex(idx); setIsStoryViewerOpen(true); }}
+                      />
+                    </>
                   ) : (
                     <WelcomeBanner />
                   )}
 
-                  {posts.length > 0 ? (
-                    <div className="mt-6 space-y-6">
-                      <AnimatePresence>
-                        {posts.map((post) => (
+                  <div className="mt-6 space-y-6">
+                    <AnimatePresence>
+                      {/* Real Posts */}
+                      {posts.map((post) => (
+                        <motion.div
+                          key={post.id}
+                          variants={postVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                          transition={{ duration: 0.3 }}
+                        >
+                          <PostCard
+                            post={post}
+                            currentUserId={currentUser?.id}
+                            onEdit={handleOpenEditModal}
+                            onDelete={handleDeletePost}
+                            onLikeToggle={toggleLike}
+                            onDislikeToggle={toggleDislike}
+                            onCommentClick={setViewingCommentsOfPostId}
+                          />
+                        </motion.div>
+                      ))}
+
+                      {/* Dummy Posts appended to the bottom for visual flair, ONLY when scrolling is finished */}
+                      {!hasNextPage && DUMMY_POSTS.map((post) => (
+                        <motion.div
+                          key={post.id}
+                          variants={postVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                          transition={{ duration: 0.3 }}
+                        >
+                          <PostCard
+                            post={post}
+                            currentUserId={currentUser?.id}
+                            onEdit={handleOpenEditModal}
+                            onDelete={handleDeletePost}
+                            onLikeToggle={toggleLike}
+                            onDislikeToggle={toggleDislike}
+                            onCommentClick={setViewingCommentsOfPostId}
+                          />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+
+                    {loading && hasNextPage && (
+                      <div className="space-y-4">
+                        {[...Array(2)].map((_, i) => (
                           <motion.div
-                            key={post.id}
-                            variants={postVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
+                            key={i}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
                           >
-                            <PostCard
-                              post={post}
-                              currentUserId={currentUser?.id}
-                              onEdit={handleOpenEditModal}
-                              onDelete={handleDeletePost}
-                              onLikeToggle={toggleLike}
-                              onDislikeToggle={toggleDislike}
-                              onCommentClick={setViewingCommentsOfPostId}
-                            />
+                            <PostCardSkeleton />
                           </motion.div>
                         ))}
-                      </AnimatePresence>
-
-                      {loading && hasNextPage && (
-                        <div className="space-y-4">
-                          {[...Array(2)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <PostCardSkeleton />
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-
-                      {hasNextPage && !loading && (
-                        <div ref={ref} className="h-10" />
-                      )}
-                    </div>
-                  ) : (
-                    !loading && (
-                      <div className="text-center py-16 px-4 bg-white rounded-lg shadow-md">
-                        <h3 className="text-xl font-semibold text-gray-800">
-                          Your Feed is Empty
-                        </h3>
-                        <p className="text-gray-500 mt-2">
-                          Follow some users to see their posts here!
-                        </p>
                       </div>
-                    )
-                  )}
+                    )}
+
+                    {hasNextPage && !loading && (
+                      <div ref={ref} className="h-10" />
+                    )}
+                  </div>
                 </>
               )}
             </main>

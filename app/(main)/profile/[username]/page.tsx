@@ -126,12 +126,12 @@ export default function ProfilePage() {
     setProfile((prev) =>
       prev
         ? {
-            ...prev,
-            is_following: !isCurrentlyFollowing,
-            followers_count: isCurrentlyFollowing
-              ? prev.followers_count - 1
-              : prev.followers_count + 1,
-          }
+          ...prev,
+          is_following: !isCurrentlyFollowing,
+          followers_count: isCurrentlyFollowing
+            ? prev.followers_count - 1
+            : prev.followers_count + 1,
+        }
         : null,
     );
 
@@ -163,16 +163,16 @@ export default function ProfilePage() {
       posts.map((p) =>
         p.id === postId
           ? {
-              ...p,
-              likes_count: p.user_has_liked
-                ? parseInt(p.likes_count.toString()) - 1
-                : parseInt(p.likes_count.toString()) + 1,
-              dislikes_count: p.user_has_disliked
-                ? parseInt(p.dislikes_count.toString()) - 1
-                : p.dislikes_count,
-              user_has_liked: !p.user_has_liked,
-              user_has_disliked: false,
-            }
+            ...p,
+            likes_count: p.user_has_liked
+              ? parseInt(p.likes_count.toString()) - 1
+              : parseInt(p.likes_count.toString()) + 1,
+            dislikes_count: p.user_has_disliked
+              ? parseInt(p.dislikes_count.toString()) - 1
+              : p.dislikes_count,
+            user_has_liked: !p.user_has_liked,
+            user_has_disliked: false,
+          }
           : p,
       ),
     );
@@ -193,16 +193,16 @@ export default function ProfilePage() {
       posts.map((p) =>
         p.id === postId
           ? {
-              ...p,
-              dislikes_count: p.user_has_disliked
-                ? parseInt(p.dislikes_count.toString()) - 1
-                : parseInt(p.dislikes_count.toString()) + 1,
-              likes_count: p.user_has_liked
-                ? parseInt(p.likes_count.toString()) - 1
-                : p.likes_count,
-              user_has_disliked: !p.user_has_disliked,
-              user_has_liked: false,
-            }
+            ...p,
+            dislikes_count: p.user_has_disliked
+              ? parseInt(p.dislikes_count.toString()) - 1
+              : parseInt(p.dislikes_count.toString()) + 1,
+            likes_count: p.user_has_liked
+              ? parseInt(p.likes_count.toString()) - 1
+              : p.likes_count,
+            user_has_disliked: !p.user_has_disliked,
+            user_has_liked: false,
+          }
           : p,
       ),
     );
@@ -267,6 +267,7 @@ export default function ProfilePage() {
       )}
       <CommentModal
         postId={viewingCommentsOfPostId}
+        postContent={posts.find(p => p.id === viewingCommentsOfPostId)?.content_text}
         onClose={() => setViewingCommentsOfPostId(null)}
       />
       <UserListModal
@@ -277,9 +278,9 @@ export default function ProfilePage() {
         loading={isFollowListLoading}
       />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-black">
         <main className="max-w-4xl mx-auto py-8 px-4">
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
+          <div className="bg-white dark:bg-gray-950 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-800 mb-8">
             <div className="flex items-center">
               <Image
                 src={
@@ -289,39 +290,39 @@ export default function ProfilePage() {
                 alt={profile.name || ""}
                 width={128}
                 height={128}
-                className="rounded-full mr-8 border-4 border-blue-500"
+                className="rounded-full mr-8 border-4 border-blue-500 object-cover w-32 h-32"
                 unoptimized
               />
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                       {profile.name || profile.username}
                     </h1>
-                    <p className="text-md text-gray-500">@{profile.username}</p>
+                    <p className="text-md text-gray-500 dark:text-gray-400">@{profile.username}</p>
                   </div>
                   {isOwnProfile ? (
                     <button
                       onClick={() => setIsEditProfileModalOpen(true)}
-                      className="px-4 py-2 text-sm font-semibold rounded-full border hover:bg-gray-100 transition"
+                      className="px-4 py-2 text-sm font-semibold rounded-full border dark:border-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition"
                     >
                       Edit Profile
                     </button>
                   ) : (
                     <button
                       onClick={handleToggleFollow}
-                      className={`px-4 py-2 text-sm font-semibold rounded-full transition ${profile.is_following ? "bg-white text-blue-600 border border-blue-600" : "bg-blue-600 text-white"}`}
+                      className={`px-4 py-2 text-sm font-semibold rounded-full transition ${profile.is_following ? "bg-white dark:bg-black text-blue-600 border border-blue-600" : "bg-blue-600 text-white"}`}
                     >
                       {profile.is_following ? "Following" : "Follow"}
                     </button>
                   )}
                 </div>
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 dark:text-gray-300 mt-4">
                   {profile.bio || "No bio available."}
                 </p>
-                <div className="flex space-x-6 mt-4 text-gray-600">
+                <div className="flex space-x-6 mt-4 text-gray-600 dark:text-gray-400">
                   <span>
-                    <span className="font-bold text-gray-800">
+                    <span className="font-bold text-gray-800 dark:text-white">
                       {posts.length}
                     </span>{" "}
                     Posts
@@ -330,7 +331,7 @@ export default function ProfilePage() {
                     onClick={() => openFollowModal("followers")}
                     className="hover:underline"
                   >
-                    <span className="font-bold text-gray-800">
+                    <span className="font-bold text-gray-800 dark:text-white">
                       {profile.followers_count}
                     </span>{" "}
                     Followers
@@ -339,7 +340,7 @@ export default function ProfilePage() {
                     onClick={() => openFollowModal("following")}
                     className="hover:underline"
                   >
-                    <span className="font-bold text-gray-800">
+                    <span className="font-bold text-gray-800 dark:text-white">
                       {profile.following_count}
                     </span>{" "}
                     Following
@@ -349,7 +350,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Posts</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Posts</h2>
           {canViewPosts ? (
             <motion.div
               variants={containerVariants}
@@ -370,7 +371,7 @@ export default function ProfilePage() {
                   />
                 ))
               ) : (
-                <div className="text-center py-16 bg-white rounded-lg shadow-md">
+                <div className="text-center py-16 bg-white dark:bg-gray-950 rounded-lg shadow-md border dark:border-gray-800">
                   <p className="text-gray-500">
                     This user hasn&apos;t posted anything yet.
                   </p>
@@ -378,8 +379,8 @@ export default function ProfilePage() {
               )}
             </motion.div>
           ) : (
-            <div className="text-center py-16 px-4 bg-white rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-800">
+            <div className="text-center py-16 px-4 bg-white dark:bg-gray-950 rounded-lg shadow-md border dark:border-gray-800">
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
                 🔒 This Account is Private
               </h3>
               <p className="text-gray-500 mt-2">

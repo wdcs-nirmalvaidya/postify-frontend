@@ -8,6 +8,9 @@ export interface PublicUser {
   avatar_url: string | null;
   bio: string | null;
   role: UserRole;
+  is_verified?: boolean;
+  posts_count?: number;
+  followers_count?: number;
   created_at: Date;
   updated_at: Date;
   is_following?: boolean;
