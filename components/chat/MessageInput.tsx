@@ -9,10 +9,6 @@ import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 
 // Lazy-load the emoji picker to avoid SSR issues
-const EmojiPicker = dynamic(
-  () => import("@emoji-mart/react").then((m) => m.default),
-  { ssr: false }
-);
 
 type Inputs = { content: string };
 
