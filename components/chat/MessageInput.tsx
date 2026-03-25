@@ -1,6 +1,11 @@
 "use client";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { PaperAirplaneIcon, MicrophoneIcon, PhotoIcon, FaceSmileIcon } from "@heroicons/react/24/outline";
+import {
+  PaperAirplaneIcon,
+  MicrophoneIcon,
+  PhotoIcon,
+  FaceSmileIcon,
+} from "@heroicons/react/24/outline";
 import { StopIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useAuth } from "@/utils/hooks/useAuth";
 import { useChat } from "@/utils/context/ChatContext";
@@ -12,7 +17,11 @@ import { AnimatePresence, motion } from "framer-motion";
 
 type Inputs = { content: string };
 
-export const MessageInput = ({ conversationId }: { conversationId: string }) => {
+export const MessageInput = ({
+  conversationId,
+}: {
+  conversationId: string;
+}) => {
   const { sendMessage, dispatch, sendTypingStart, sendTypingStop } = useChat();
   const { user } = useAuth();
   const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>();
@@ -68,7 +77,14 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
           status: "sending",
         },
       });
-      sendMessage({ conversationId, senderId: user.id, content: "", tempId, mediaUrl: base64, mediaType: "image" });
+      sendMessage({
+        conversationId,
+        senderId: user.id,
+        content: "",
+        tempId,
+        mediaUrl: base64,
+        mediaType: "image",
+      });
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -108,7 +124,14 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
               status: "sending",
             },
           });
-          sendMessage({ conversationId, senderId: user.id, content: "", tempId, mediaUrl: base64, mediaType: "audio" });
+          sendMessage({
+            conversationId,
+            senderId: user.id,
+            content: "",
+            tempId,
+            mediaUrl: base64,
+            mediaType: "audio",
+          });
         };
         reader.readAsDataURL(blob);
         stream.getTracks().forEach((t) => t.stop());
@@ -117,7 +140,10 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
       setRecordingSeconds(0);
-      recordingTimerRef.current = setInterval(() => setRecordingSeconds((s) => s + 1), 1000);
+      recordingTimerRef.current = setInterval(
+        () => setRecordingSeconds((s) => s + 1),
+        1000,
+      );
     } catch {
       alert("Microphone access denied.");
     }
@@ -163,12 +189,20 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
         status: "sending",
       },
     });
-    sendMessage({ conversationId, senderId: user.id, content: data.content, tempId });
+    sendMessage({
+      conversationId,
+      senderId: user.id,
+      content: data.content,
+      tempId,
+    });
     reset();
     setShowEmoji(false);
   };
 
-  const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+  const formatTime = (s: number) =>
+    `${Math.floor(s / 60)
+      .toString()
+      .padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
   return (
     <div className="relative">
@@ -180,31 +214,24 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             className="absolute bottom-full left-0 mb-2 z-30"
-          >
-            {emojiData && (
-              <EmojiPicker
-                data={emojiData}
-                theme="auto"
-                onEmojiSelect={(e: { native: string }) => {
-                  const current = content || "";
-                  setValue("content", current + e.native);
-                }}
-                previewPosition="none"
-              />
-            )}
-          </motion.div>
+          ></motion.div>
         )}
       </AnimatePresence>
 
       {isRecording ? (
         // ─── Recording UI ───
         <div className="p-3 bg-white dark:bg-gray-950 border-t dark:border-gray-800 flex items-center gap-3">
-          <button onClick={cancelRecording} className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20">
+          <button
+            onClick={cancelRecording}
+            className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
             <TrashIcon className="w-5 h-5" />
           </button>
           <div className="flex-1 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 rounded-full px-4 py-2">
             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-            <span className="text-sm text-red-600 dark:text-red-400 font-mono">{formatTime(recordingSeconds)}</span>
+            <span className="text-sm text-red-600 dark:text-red-400 font-mono">
+              {formatTime(recordingSeconds)}
+            </span>
             <div className="flex-1 h-1 bg-red-200 dark:bg-red-800 rounded-full overflow-hidden">
               <div className="h-full bg-red-500 rounded-full animate-pulse w-full" />
             </div>
@@ -226,8 +253,11 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
           <button
             type="button"
             onClick={() => setShowEmoji((v) => !v)}
-            className={`p-2 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0 ${showEmoji ? "text-blue-600" : "text-gray-500 dark:text-gray-400 hover:text-blue-600"
-              }`}
+            className={`p-2 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex-shrink-0 ${
+              showEmoji
+                ? "text-blue-600"
+                : "text-gray-500 dark:text-gray-400 hover:text-blue-600"
+            }`}
           >
             <FaceSmileIcon className="w-6 h-6" />
           </button>
@@ -240,7 +270,13 @@ export const MessageInput = ({ conversationId }: { conversationId: string }) => 
           >
             <PhotoIcon className="w-6 h-6" />
           </button>
-          <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
 
           {/* Text input */}
           <input
